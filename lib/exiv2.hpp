@@ -71,23 +71,38 @@
 #define STR(x) (RSTRING(x)->ptr)
 #define SAFESTR(x) (x == Qnil ? NULL : RSTRING(x)->ptr)
 #define CSTR(x) (const char *)(STR(x))
+#define CBSTR(x) (const uint8_t *)(STR(x))
 #define CSAFESTR(x) (const char *)(SAFESTR(x))
 #define LEN(x) (RSTRING(x)->len)
 #define RUN(x) if(!x) { return Qnil; }
 
+#define __BEGIN try {
+#define __END } catch(Exiv2::AnyError& e) { rb_raise(rb_eStandardError, "Error occured in exiv2 library: %s", e.what().c_str());}
+#define __NIL_END } catch(Exiv2::AnyError& e) { return Qnil; }
+#define __VOID_END } catch(Exiv2::AnyError& e) {}
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+	void Init_exiv2(void);
+	extern VALUE mExiv2, cImage;
 
-extern VALUE mExiv2, cImage;
+#if defined(__cplusplus)
+}  /* extern "C" { */
+#endif
+
 
 struct rbImage {
-	bool touched = false;
+	bool dirty;
 	Exiv2::Image::AutoPtr image;
 };
 
 
 VALUE exiv2_image_s_allocate(VALUE klass);
-VALUE exiv2_image_initialize(VALUE self);
-
+VALUE exiv2_image_initialize(VALUE self, VALUE file);
+VALUE exiv2_image_get_exif(VALUE self, VALUE key);
+VALUE exiv2_image_set_exif(VALUE self, VALUE key, VALUE value);
+VALUE exiv2_image_save(VALUE self);
 
 
 #endif /* EXIV2_HPP_ */

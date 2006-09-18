@@ -33,7 +33,7 @@ VALUE mExiv2, cImage;
 
 #ifdef __cplusplus
 extern "C"
-#end
+#endif
 
 
 void Init_exiv2() {
@@ -42,5 +42,8 @@ void Init_exiv2() {
 	cImage = rb_define_class_under(mExiv2, "Image", rb_cObject);
 	rb_define_alloc_func(cImage, exiv2_image_s_allocate);
 	rb_define_method(cImage, "initialize", VALUEFUNC(exiv2_image_initialize), 1);
+	rb_define_method(cImage, "[]", VALUEFUNC(exiv2_image_get_exif), 1);
+	rb_define_method(cImage, "[]=", VALUEFUNC(exiv2_image_set_exif), 2);
+	rb_define_method(cImage, "save", VALUEFUNC(exiv2_image_save), 0);
 	
 }
