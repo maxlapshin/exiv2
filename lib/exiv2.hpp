@@ -85,7 +85,7 @@
 extern "C" {
 #endif
 	void Init_exiv2(void);
-	extern VALUE mExiv2, cImage;
+	extern VALUE mExiv2, cImage, cExif, cIptc;
 
 #if defined(__cplusplus)
 }  /* extern "C" { */
@@ -100,9 +100,15 @@ struct rbImage {
 
 VALUE exiv2_image_s_allocate(VALUE klass);
 VALUE exiv2_image_initialize(VALUE self, VALUE file);
-VALUE exiv2_image_get_exif(VALUE self, VALUE key);
-VALUE exiv2_image_set_exif(VALUE self, VALUE key, VALUE value);
 VALUE exiv2_image_save(VALUE self);
+VALUE exiv2_image_clear(VALUE self);
+VALUE exiv2_image_exif(VALUE self);
+VALUE exiv2_image_get_comment(VALUE self);
+VALUE exiv2_image_set_comment(VALUE self, VALUE comment);
+
+VALUE exiv2_exif_get(VALUE self, VALUE key);
+VALUE exiv2_exif_set(VALUE self, VALUE key, VALUE value);
+VALUE exiv2_exif_each(int argc, VALUE *argv, VALUE self);
 
 
 #endif /* EXIV2_HPP_ */
