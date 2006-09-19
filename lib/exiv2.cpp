@@ -56,6 +56,10 @@ void Init_exiv2() {
 	rb_define_method(cExif, "each", VALUEFUNC(exiv2_exif_each), -1);
 	rb_define_method(cExif, "[]", VALUEFUNC(exiv2_exif_get), 1);
 	rb_define_method(cExif, "[]=", VALUEFUNC(exiv2_exif_set), 2);
+	rb_define_method(cExif, "delete", VALUEFUNC(exiv2_exif_delete), 1);
+	rb_define_method(cExif, "clear", VALUEFUNC(exiv2_exif_clear), 0);
+	rb_define_method(cExif, "size", VALUEFUNC(exiv2_exif_size), 0);
+	rb_define_method(cExif, "empty?", VALUEFUNC(exiv2_exif_empty), 0);
 
 /*	
 	cThumbnail = rb_define_class_under(mExiv2, "Thumbnail", rb_cObject);

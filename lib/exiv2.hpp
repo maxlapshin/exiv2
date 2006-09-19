@@ -109,6 +109,10 @@ VALUE exiv2_image_set_comment(VALUE self, VALUE comment);
 VALUE exiv2_exif_get(VALUE self, VALUE key);
 VALUE exiv2_exif_set(VALUE self, VALUE key, VALUE value);
 VALUE exiv2_exif_each(int argc, VALUE *argv, VALUE self);
+VALUE exiv2_exif_delete(VALUE self, VALUE key);
+VALUE exiv2_exif_size(VALUE self);
+VALUE exiv2_exif_empty(VALUE self);
+VALUE exiv2_exif_clear(VALUE self);
 
 
 #endif /* EXIV2_HPP_ */
