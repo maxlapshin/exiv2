@@ -95,6 +95,10 @@ static VALUE exiv2_exif_get(VALUE self, VALUE key) {
 	__NIL_END
 }
 
+/*
+ *  @exif["Exif.Photo.PixelXDimension"] = 3024
+ * [] — is a universal accessor
+ */
 static VALUE exiv2_exif_set(VALUE self, VALUE key, VALUE value) {
 	__BEGIN
 	rbImage* image;
@@ -110,6 +114,9 @@ static VALUE exiv2_exif_set(VALUE self, VALUE key, VALUE value) {
 	__NIL_END
 }
 
+/*
+ * Iterates through all exif tags in image
+ */
 static VALUE exiv2_exif_each(int argc, VALUE *argv, VALUE self) {
 	__BEGIN
 	rbImage* image;
@@ -137,6 +144,9 @@ static VALUE exiv2_exif_each(int argc, VALUE *argv, VALUE self) {
 	__END
 }
 
+/*
+ * Delete exif value by it's name
+ */
 static VALUE exiv2_exif_delete(VALUE self, VALUE key) {
 	__BEGIN
 	rbImage* image;
@@ -161,6 +171,9 @@ static VALUE exiv2_exif_delete(VALUE self, VALUE key) {
 	__NIL_END
 }
 
+/*
+ * Clear all exif data in image
+ */
 static VALUE exiv2_exif_clear(VALUE self) {
 	__BEGIN
 	rbImage* image;
@@ -176,7 +189,9 @@ static VALUE exiv2_exif_clear(VALUE self) {
 	__END
 }
 
-
+/*
+ * Count of exif tags in image
+ */
 static VALUE exiv2_exif_count(VALUE self) {
 	__BEGIN
 	rbImage* image;
@@ -188,6 +203,9 @@ static VALUE exiv2_exif_count(VALUE self) {
 	__END
 }
 
+/*
+ * Predicate method. Is exif empty?
+ */
 static VALUE exiv2_exif_empty(VALUE self) {
 	__BEGIN
 	rbImage* image;

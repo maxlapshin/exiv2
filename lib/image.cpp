@@ -56,6 +56,9 @@ static void image_real_save(rbImage* image) {
 	}
 }
 
+/*
+ * Save image with changed data
+ */
 static VALUE exiv2_image_save(VALUE self) {
 	__BEGIN
 	rbImage* image;
@@ -65,7 +68,9 @@ static VALUE exiv2_image_save(VALUE self) {
 	__END
 }
 
-
+/*
+ * Clear all metadata in image. Not only exif
+ */
 static VALUE exiv2_image_clear(VALUE self) {
 	__BEGIN
 	rbImage* image;
@@ -76,7 +81,9 @@ static VALUE exiv2_image_clear(VALUE self) {
 	__END
 }
 
-
+/*
+ * Get comment of image
+ */
 static VALUE exiv2_image_get_comment(VALUE self) {
 	__BEGIN
 	rbImage* image;
@@ -86,6 +93,9 @@ static VALUE exiv2_image_get_comment(VALUE self) {
 	__END
 }
 
+/*
+ * Set comment in image
+ */
 static VALUE exiv2_image_set_comment(VALUE self, VALUE comment) {
 	__BEGIN
 	rbImage* image;
@@ -109,7 +119,9 @@ static VALUE exiv2_image_set_comment(VALUE self, VALUE comment) {
 	__END
 }
 
-
+/*
+ * Access to exif data of image
+ */
 static VALUE exiv2_image_exif(VALUE self) {
 	__BEGIN
 	rbImage* image;
@@ -125,10 +137,10 @@ void Init_image() {
 	rb_define_alloc_func(cImage, exiv2_image_s_allocate);
 	rb_define_method(cImage, "initialize", VALUEFUNC(exiv2_image_initialize), 1);
 	rb_define_method(cImage, "exif", VALUEFUNC(exiv2_image_exif), 0);
-	/*
-		rb_define_method(cImage, "thumbnail", VALUEFUNC(exiv2_image_thumbnail), 0);
-		rb_define_method(cImage, "thumbnail=", VALUEFUNC(exiv2_image_thumbnail_set), 0);
-	*/
+
+	//rb_define_method(cImage, "thumbnail", VALUEFUNC(exiv2_image_thumbnail), 0);
+	//rb_define_method(cImage, "thumbnail=", VALUEFUNC(exiv2_image_thumbnail_set), 0);
+
 	rb_define_method(cImage, "save", VALUEFUNC(exiv2_image_save), 0);
 	rb_define_method(cImage, "clear", VALUEFUNC(exiv2_image_clear), 0);
 	rb_define_method(cImage, "comment", VALUEFUNC(exiv2_image_get_comment), 0);
