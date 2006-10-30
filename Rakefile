@@ -6,13 +6,13 @@ require 'rake/packagetask'
 require 'rake/contrib/rubyforgepublisher'
 #require 'lib/intersys'
 
-PKG_NAME = "intersys"
-PKG_VERSION = "0.2.1"
+PKG_NAME = "ruby-exiv2"
+PKG_VERSION = "0.2"
 PKG_AUTHOR = "Max Lapshin"
 PKG_EMAIL = "max@maxidoors.ru"
 PKG_HOMEPAGE = "http://maxidoors.ru/"
-PKG_SUMMARY = "Intersystems Cache ruby driver"
-PKG_SVN = "http://svn.maxidoors.ru/cache-ruby"
+PKG_SUMMARY = "Exiv2 (exif image tags handling) library driver"
+PKG_SVN = "http://svn.maxidoors.ru/ruby-exiv2"
 PKG_RDOC_OPTS = ['--main=README',
                  '--line-numbers',
                  '--webcvs='+PKG_SVN,
@@ -64,6 +64,11 @@ task :stats  do
   ).to_s
 end
 
+desc "Generate file with C++ with all methods"
+task "ruby-exiv2.cpp".to_sym do
+  `cat lib/*.cpp > ruby-exiv2.cpp`
+end
+
 
 desc "Generate RDoc documentation"
 Rake::RDocTask.new("doc") do |rdoc|
@@ -73,7 +78,7 @@ Rake::RDocTask.new("doc") do |rdoc|
 #  rdoc.rdoc_files.include('CHANGELOG')
 #  rdoc.rdoc_files.include('TODO')
   rdoc.options = PKG_RDOC_OPTS
-  rdoc.rdoc_files.include "lib/intersys.rb"
+  rdoc.rdoc_files.include "ruby-exiv2.cpp"
 end
 
 #Rake::GemPackageTask.new(spec) do |p|
@@ -95,12 +100,11 @@ end
 
 desc "Push docs to servers"
 task :push_docs do
-  user = "max_lapshin@intersys.rubyforge.org" 
-  project = '/var/www/gforge-projects/intersys/doc'
+  user = "max_lapshin@ruby-exiv2.rubyforge.org" 
+  project = '/var/www/gforge-projects/ruby-exiv2/doc'
   local_dir = 'doc'
   [ 
     Rake::SshDirPublisher.new( user, project, local_dir),
-    #Rake::SshDirPublisher.new('julik', '~/www/code/rutils', local_dir),
   ].each { |p| p.upload }
 end
 

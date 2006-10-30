@@ -21,7 +21,14 @@ class ImageTest < Test::Unit::TestCase
   
   def test_open
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |f|
-      assert @img = Exiv2::Image.new(f)
+      assert @img = Exiv2::Image.new(f), "Image should be opened from IO::File"
+      assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
+      assert_equal nil, @img.exif["zeze"]
+      assert_equal "3024", @img.exif["Exif.Photo.PixelXDimension"]
+    end
+    
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |f|
+      assert @img = Exiv2::Image.new(f.path), "Image should be opened from filename"
       assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
       assert_equal nil, @img.exif["zeze"]
       assert_equal "3024", @img.exif["Exif.Photo.PixelXDimension"]

@@ -21,6 +21,10 @@ static VALUE exiv2_image_s_allocate(VALUE klass) {
 	__END
 }
 
+/*
+ * img = Exiv2::Image.new("IMGP3025.jpg")
+ * => #<Exiv2::Image:0x844bc>
+ */
 static VALUE exiv2_image_initialize(VALUE self, VALUE file) {
 	__BEGIN
 	rbImage* image;
@@ -30,7 +34,7 @@ static VALUE exiv2_image_initialize(VALUE self, VALUE file) {
 	try {
 		if(rb_respond_to(file, rb_intern("read"))) {
 			VALUE file_content = rb_funcall(file, rb_intern("read"), 0);
-			rb_iv_set(self, "file_content", file_content);
+			rb_iv_set(self, "@file_content", file_content);
 			image->image = Exiv2::ImageFactory::open(CBSTR(file_content), LEN(file_content));
 		} else if(TYPE(file) == T_STRING) {
 			image->image = Exiv2::ImageFactory::open(CSTR(file));
