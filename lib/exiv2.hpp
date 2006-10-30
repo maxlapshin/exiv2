@@ -77,7 +77,7 @@
 #define RUN(x) if(!x) { return Qnil; }
 
 #define __BEGIN try {
-#define __END } catch(Exiv2::AnyError& e) { rb_raise(rb_eStandardError, "Error occured in exiv2 library: %s", e.what().c_str());}
+#define __END } catch(Exiv2::AnyError& e) { rb_raise(eError, "Error occured in exiv2 library: %s", e.what().c_str());}
 #define __NIL_END } catch(Exiv2::AnyError& e) { return Qnil; }
 #define __VOID_END } catch(Exiv2::AnyError& e) {}
 
@@ -85,7 +85,7 @@
 extern "C" {
 #endif
 	void Init_exiv2(void);
-	extern VALUE mExiv2, cImage, cExif, cIptc;
+	extern VALUE mExiv2, cImage, cExif, cIptc, eError;
 
 #if defined(__cplusplus)
 }  /* extern "C" { */
@@ -98,21 +98,8 @@ struct rbImage {
 };
 
 
-VALUE exiv2_image_s_allocate(VALUE klass);
-VALUE exiv2_image_initialize(VALUE self, VALUE file);
-VALUE exiv2_image_save(VALUE self);
-VALUE exiv2_image_clear(VALUE self);
-VALUE exiv2_image_exif(VALUE self);
-VALUE exiv2_image_get_comment(VALUE self);
-VALUE exiv2_image_set_comment(VALUE self, VALUE comment);
-
-VALUE exiv2_exif_get(VALUE self, VALUE key);
-VALUE exiv2_exif_set(VALUE self, VALUE key, VALUE value);
-VALUE exiv2_exif_each(int argc, VALUE *argv, VALUE self);
-VALUE exiv2_exif_delete(VALUE self, VALUE key);
-VALUE exiv2_exif_size(VALUE self);
-VALUE exiv2_exif_empty(VALUE self);
-VALUE exiv2_exif_clear(VALUE self);
+void Init_image();
+void Init_exif();
 
 
 #endif /* EXIV2_HPP_ */

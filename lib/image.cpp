@@ -13,7 +13,7 @@ static void image_leave(rbImage* image) {
 	
 }
 
-VALUE exiv2_image_s_allocate(VALUE klass) {
+static VALUE exiv2_image_s_allocate(VALUE klass) {
 	__BEGIN
 	rbImage* image = new rbImage();
 	image->dirty = false;
@@ -21,7 +21,7 @@ VALUE exiv2_image_s_allocate(VALUE klass) {
 	__END
 }
 
-VALUE exiv2_image_initialize(VALUE self, VALUE file) {
+static VALUE exiv2_image_initialize(VALUE self, VALUE file) {
 	__BEGIN
 	rbImage* image;
 	Data_Get_Struct(self, rbImage, image);
@@ -52,7 +52,7 @@ static void image_real_save(rbImage* image) {
 	}
 }
 
-VALUE exiv2_image_save(VALUE self) {
+static VALUE exiv2_image_save(VALUE self) {
 	__BEGIN
 	rbImage* image;
 	Data_Get_Struct(self, rbImage, image);
@@ -62,7 +62,7 @@ VALUE exiv2_image_save(VALUE self) {
 }
 
 
-VALUE exiv2_image_clear(VALUE self) {
+static VALUE exiv2_image_clear(VALUE self) {
 	__BEGIN
 	rbImage* image;
 	Data_Get_Struct(self, rbImage, image);
@@ -73,7 +73,7 @@ VALUE exiv2_image_clear(VALUE self) {
 }
 
 
-VALUE exiv2_image_get_comment(VALUE self) {
+static VALUE exiv2_image_get_comment(VALUE self) {
 	__BEGIN
 	rbImage* image;
 	Data_Get_Struct(self, rbImage, image);
@@ -82,7 +82,7 @@ VALUE exiv2_image_get_comment(VALUE self) {
 	__END
 }
 
-VALUE exiv2_image_set_comment(VALUE self, VALUE comment) {
+static VALUE exiv2_image_set_comment(VALUE self, VALUE comment) {
 	__BEGIN
 	rbImage* image;
 	Data_Get_Struct(self, rbImage, image);
@@ -106,7 +106,7 @@ VALUE exiv2_image_set_comment(VALUE self, VALUE comment) {
 }
 
 
-VALUE exiv2_image_exif(VALUE self) {
+static VALUE exiv2_image_exif(VALUE self) {
 	__BEGIN
 	rbImage* image;
 	Data_Get_Struct(self, rbImage, image);
@@ -116,3 +116,17 @@ VALUE exiv2_image_exif(VALUE self) {
 	__END
 }
 
+void Init_image() {
+	cImage = rb_define_class_under(mExiv2, "Image", rb_cObject);
+	rb_define_alloc_func(cImage, exiv2_image_s_allocate);
+	rb_define_method(cImage, "initialize", VALUEFUNC(exiv2_image_initialize), 1);
+	rb_define_method(cImage, "exif", VALUEFUNC(exiv2_image_exif), 0);
+	/*
+		rb_define_method(cImage, "thumbnail", VALUEFUNC(exiv2_image_thumbnail), 0);
+		rb_define_method(cImage, "thumbnail=", VALUEFUNC(exiv2_image_thumbnail_set), 0);
+	*/
+	rb_define_method(cImage, "save", VALUEFUNC(exiv2_image_save), 0);
+	rb_define_method(cImage, "clear", VALUEFUNC(exiv2_image_clear), 0);
+	rb_define_method(cImage, "comment", VALUEFUNC(exiv2_image_get_comment), 0);
+	rb_define_method(cImage, "comment=", VALUEFUNC(exiv2_image_set_comment), 1);
+}

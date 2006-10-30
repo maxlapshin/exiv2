@@ -6,8 +6,8 @@ CONFIG['LDSHARED'] = "g++ -g  -dynamic -bundle -undefined suppress -flat_namespa
 
 
 
-$CPPFLAGS << " -Wall -I/usr/local/include/exiv2 "
-$LDFLAGS << " -lstdc++ -L/usr/local/lib "
+$CPPFLAGS << " -Wall -I/usr/local/include/exiv2 -I/usr/include/exiv2 "
+$LDFLAGS << " -lstdc++ "
 have_header "exif.hpp"
 have_library "exiv2", "_ZN5Exiv29MetadatumD0Ev"
 create_makefile 'exiv2'
