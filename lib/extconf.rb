@@ -1,8 +1,9 @@
 #!/usr/bin/env ruby
 
 require "mkmf"
-CONFIG["CPP"] = "g++ -g -undefined suppress -flat_namespace "
-CONFIG['LDSHARED'] = "g++ -g  -dynamic -bundle -undefined suppress -flat_namespace"
+#CONFIG["CXX"] = "g++ -g " + CONFIG['LDSHARED']
+CONFIG["CPP"] = "g++ -E "
+#CONFIG['LDSHARED'] = "g++ -g  -dynamic -bundle -undefined suppress -flat_namespace"
 
 
 
