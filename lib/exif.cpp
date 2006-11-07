@@ -31,16 +31,16 @@ static VALUE unmarshall_value(const Exiv2::Value& value) {
 			VALUE str = rb_str_buf_new(value.size() - 1);
 			value.copy((Exiv2::byte *)STR(str), Exiv2::littleEndian);
 			LEN(str) = value.size() - 1;
+			STR(str)[LEN(str)] = '\0';
 			return str;
 		}
 		
 		case Exiv2::unsignedRational:
 		case Exiv2::signedRational: 
 		{
-			return rb_str_new2(value.toString().c_str());
 			Exiv2::Rational r = value.toRational();
 			ID rational_id = rb_intern("Rational");
-			if(0 && rb_const_defined(rb_cObject, rational_id)) {
+			if(rb_const_defined(rb_cObject, rational_id)) {
 				VALUE rational = rb_const_get(rb_cObject, rational_id);
 				return rb_funcall(rational, rb_intern("new!"), 2, INT2NUM(r.first), INT2NUM(r.second));
 			}

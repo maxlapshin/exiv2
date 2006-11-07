@@ -14,71 +14,73 @@ class ImageTest < Test::Unit::TestCase
     end
     begin
       yield test_file_name
-    rescue
+    rescue StandardError => e
+      File.unlink(test_file_name)
+      raise e
     end
     File.unlink(test_file_name)
   end
   
   def test_open
-    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |f|
-      assert @img = Exiv2::Image.new(f), "Image should be opened from IO::File"
-      assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
-      assert_equal nil, @img.exif["zeze"]
-      assert_equal "3024", @img.exif["Exif.Photo.PixelXDimension"]
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      open(filename) do |image_file|
+        assert @img = Exiv2::Image.new(image_file), "Image should be opened from IO::File"
+        assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
+        assert_equal nil, @img.exif["zeze"]
+        assert_equal 3024, @img.exif["Exif.Photo.PixelXDimension"]
+      end
     end
     
-    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |f|
-      assert @img = Exiv2::Image.new(f.path), "Image should be opened from filename"
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename), "Image should be opened from filename"
       assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
       assert_equal nil, @img.exif["zeze"]
-      assert_equal "3024", @img.exif["Exif.Photo.PixelXDimension"]
+      assert_equal 3024, @img.exif["Exif.Photo.PixelXDimension"]
     end
   end
   
   def test_write
-    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |f|
-      assert @img = Exiv2::Image.new(f)
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
       assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
       assert_equal "*istDs", @img.exif["Exif.Image.Model"] = "*istDs"
       assert @img.save
 
-      assert @img = Exiv2::Image.new(f)
+      assert @img = Exiv2::Image.new(filename)
       assert_equal "*istDs", @img.exif["Exif.Image.Model"]
     end
   end
 
   def test_comment
-    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |f|
-      assert @img = Exiv2::Image.new(f)
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
       assert_equal "My funny comment", @img.comment = "My funny comment"
       assert @img.save
 
-      assert @img = Exiv2::Image.new(f)
+      assert @img = Exiv2::Image.new(filename)
       assert_equal "My funny comment", @img.comment
     end
   end
   
   def test_typehinting
-    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |f|
-      assert @img = Exiv2::Image.new(f)
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
       assert @exif = @img.exif
       assert_equal 1, @exif["Exif.Image.Orientation"]
       assert_equal "Digital Camera FinePixS2Pro Ver1.00", @exif["Exif.Image.Software"]
+      assert_kind_of Numeric, @exif["Exif.Image.XResolution"]
       assert_equal 72, @exif["Exif.Image.XResolution"]
-      assert_equal String, @exif["Exif.Image.XResolution"].class
-      puts @exif["Exif.Image.XResolution"].class
 
       require 'rational'
 
-      assert_equal 72, @exif["Exif.Image.XResolution"]
-      assert_equal Numeric, @exif["Exif.Image.XResolution"].class
-      puts @exif["Exif.Image.XResolution"].class
+      assert_kind_of Rational, @exif["Exif.Image.XResolution"]
+      assert_equal Rational.new!(72, 1), @exif["Exif.Image.XResolution"]
     end
   end
 
   def test_each
-    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |f|
-      assert @img = Exiv2::Image.new(f)
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
       i = 0
       @img.exif.each do |key, value|
         i = i + 1

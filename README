@@ -1,0 +1,12 @@
+Library for handling exif image tags.
+
+Basic usage:
+
+> gem install ruby-exiv2
+
+
+require 'exiv2'
+@img = Exiv2::Image.new("a.jpg")
+@exif = @img.exif
+puts @img.exif["Exif.Photo.PixelXDimension"]
+=> 3024
