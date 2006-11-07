@@ -29,7 +29,7 @@
 #include "exiv2.hpp"
 
 
-VALUE mExiv2, cImage, cExif, cIptc, cThumbnail, eError;
+VALUE mExiv2, cImage, cExif, cTag, cIptc, cThumbnail, eError;
 
 void rb_exiv2_throw(const char *file, long unsigned int line, const char *fmt, ...) {
 	char* message;

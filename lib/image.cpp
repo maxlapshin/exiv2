@@ -132,14 +132,53 @@ static VALUE exiv2_image_exif(VALUE self) {
 	__END
 }
 
+
+/*
+ * Dump thumbnail to file.
+ * @img.thumbnail("my_image")
+ */
+static VALUE exiv2_image_thumbnail(VALUE self, VALUE file_name) {
+	__BEGIN
+	Check_Type(file_name, T_STRING);
+	
+	rbImage* image;
+	Data_Get_Struct(self, rbImage, image);
+
+	Exiv2::ExifData &exifData = image->image->exifData();
+	exifData.writeThumbnail(STR(file_name));
+	if(rb_block_given_p()) {
+		rb_yield(file_name);
+	}
+	return self;
+	__END
+}
+
+/*
+ * Set image thumbnail to contents of passed file
+ * @img.thumbnail = "my_image.jpg"
+ */
+static VALUE exiv2_image_thumbnail_set(VALUE self, VALUE file_name) {
+	__BEGIN
+	Check_Type(file_name, T_STRING);
+	
+	rbImage* image;
+	Data_Get_Struct(self, rbImage, image);
+
+	Exiv2::ExifData &exifData = image->image->exifData();
+	exifData.setJpegThumbnail(STR(file_name));
+	return self;
+	__END
+}
+
+
 void Init_image() {
 	cImage = rb_define_class_under(mExiv2, "Image", rb_cObject);
 	rb_define_alloc_func(cImage, exiv2_image_s_allocate);
 	rb_define_method(cImage, "initialize", VALUEFUNC(exiv2_image_initialize), 1);
 	rb_define_method(cImage, "exif", VALUEFUNC(exiv2_image_exif), 0);
 
-	//rb_define_method(cImage, "thumbnail", VALUEFUNC(exiv2_image_thumbnail), 0);
-	//rb_define_method(cImage, "thumbnail=", VALUEFUNC(exiv2_image_thumbnail_set), 0);
+	rb_define_method(cImage, "thumbnail", VALUEFUNC(exiv2_image_thumbnail), 1);
+	rb_define_method(cImage, "thumbnail=", VALUEFUNC(exiv2_image_thumbnail_set), 1);
 
 	rb_define_method(cImage, "save", VALUEFUNC(exiv2_image_save), 0);
 	rb_define_method(cImage, "clear", VALUEFUNC(exiv2_image_clear), 0);

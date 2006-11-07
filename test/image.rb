@@ -27,6 +27,9 @@ class ImageTest < Test::Unit::TestCase
         assert @img = Exiv2::Image.new(image_file), "Image should be opened from IO::File"
         assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
         assert_equal nil, @img.exif["zeze"]
+        assert_raise(Exiv2::Error, "Setting of invalid tag should raise an exception") do
+          @img.exif["zeze"] = "lala"
+        end
         assert_equal 3024, @img.exif["Exif.Photo.PixelXDimension"]
       end
     end
@@ -123,6 +126,13 @@ class ImageTest < Test::Unit::TestCase
         assert value
       end
       assert_equal 16, i
+    end
+  end
+  
+  def __test_thumbnail
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      
     end
   end
 end

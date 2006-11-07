@@ -43,6 +43,7 @@
 #include <cstring>
 #include <cassert>
 
+#include <stdarg.h>
 
 
 #include "ruby.h"
@@ -88,7 +89,7 @@ void rb_exiv2_throw(const char* file, long unsigned int line, const char *fmt, .
 extern "C" {
 #endif
 	void Init_exiv2(void);
-	extern VALUE mExiv2, cImage, cExif, cIptc, eError;
+	extern VALUE mExiv2, cImage, cExif, cTag, cIptc, eError;
 
 #if defined(__cplusplus)
 }  /* extern "C" { */

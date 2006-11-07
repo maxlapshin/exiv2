@@ -102,8 +102,14 @@ static VALUE exiv2_exif_get(VALUE self, VALUE key) {
  * then I will just set apropreciated hash entry to this casted value
  */
 static bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE value) {
-	Exiv2::ExifKey exif_key(key);
-	Exiv2::TypeId type_id = Exiv2::ExifTags::tagType(exif_key.tag(), exif_key.ifdId());
+	Exiv2::TypeId type_id;
+	try {
+		Exiv2::ExifKey exif_key(key);
+		type_id = Exiv2::ExifTags::tagType(exif_key.tag(), exif_key.ifdId());
+	}
+	catch(Exiv2::Error& e) {
+		rb_raise(eError, "Cannot set tag %s because it doesn't exists. Look at http://www.exiv2.org/tags.html for list of supported tags", key);
+	}
 	switch(type_id) {
 		case Exiv2::invalidTypeId:
 		{
@@ -167,17 +173,12 @@ static VALUE exiv2_exif_set(VALUE self, VALUE key, VALUE value) {
 	Data_Get_Struct(self, rbImage, image);
 
 	VALUE strkey = rb_funcall(key, rb_intern("to_s"), 0);
-	bool marshalled = false;
-	{
-		Exiv2::ExifData &exifData = image->image->exifData();
+	Exiv2::ExifData &exifData = image->image->exifData();
 
-		marshalled = marshall_value(exifData, STR(strkey), value);
-	}
-	
-	if(!marshalled) {
+	if(!marshall_value(exifData, STR(strkey), value)) {
 		THROW("Couldn't write %s", STR(strkey));
 	}
-
+	
 	image->dirty = true;
 	return value;
 	__NIL_END
@@ -287,6 +288,36 @@ static VALUE exiv2_exif_empty(VALUE self) {
 }
 
 
+/*
+static void tag_leave(Exiv2::TagInfo* info) {
+	
+}
+
+static VALUE create_exiv2_tag(VALUE exif, Exiv2::TagInfo* info) {
+	VALUE tag_info = Data_Wrap_Struct(cTag, 0, tag_leave, info);
+	rb_iv_set(tag_info, "@exif", exif);
+	return tag_info;
+}
+static VALUE exiv2_exif_tags_each(VALUE self) {
+    for (int i=0; Exiv2::ifdTagInfo[i].tag_ != 0xffff; ++i) {
+		rb_yield(create_exiv2_tag(self, Exiv2::ifdTagInfo + i));
+    }
+    for (int i=0; Exiv2::exifTagInfo[i].tag_ != 0xffff; ++i) {
+		rb_yield(create_exiv2_tag(self, Exiv2::exifTagInfo + i));
+    }
+    for (int i=0; Exiv2::iopTagInfo[i].tag_ != 0xffff; ++i) {
+		rb_yield(create_exiv2_tag(self, Exiv2::iopTagInfo + i));
+    }
+    for (int i=0; Exiv2::gpsTagInfo[i].tag_ != 0xffff; ++i) {
+		rb_yield(create_exiv2_tag(self, Exiv2::gpsTagInfo + i));
+    }
+	return self;
+}
+
+static VALUE exiv2_iptc_tags_each(VALUE self) {
+	
+}
+*/
 
 void Init_exif() {
 	cExif = rb_define_class_under(mExiv2, "Exif", rb_cObject);
@@ -297,4 +328,8 @@ void Init_exif() {
 	rb_define_method(cExif, "clear", VALUEFUNC(exiv2_exif_clear), 0);
 	rb_define_method(cExif, "count", VALUEFUNC(exiv2_exif_count), 0);
 	rb_define_method(cExif, "empty?", VALUEFUNC(exiv2_exif_empty), 0);
+//	rb_define_singleton_method(cExif, "exif_tags_each", VALUEFUNC(exiv2_exif_tags_each), 0);
+//	rb_define_singleton_method(cExif, "iptc_tags_each", VALUEFUNC(exiv2_iptc_tags_each), 0);
+	
+	cTag = rb_define_class_under(mExiv2, "Tag", rb_cObject);
 }
