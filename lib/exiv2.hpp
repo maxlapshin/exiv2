@@ -81,6 +81,9 @@
 #define __NIL_END } catch(Exiv2::AnyError& e) { return Qnil; }
 #define __VOID_END } catch(Exiv2::AnyError& e) {}
 
+#define THROW(message, ...) rb_exiv2_throw(__FILE__, __LINE__, message, ##__VA_ARGS__)
+void rb_exiv2_throw(const char* file, long unsigned int line, const char *fmt, ...);
+
 #if defined(__cplusplus)
 extern "C" {
 #endif

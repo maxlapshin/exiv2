@@ -9,7 +9,7 @@ static VALUE unmarshall_value(const Exiv2::Value& value) {
 	
 	Exiv2::TypeId type_id = value.typeId();
 	switch(type_id) {
-		case Exiv2::invalidTypeId: 
+		case Exiv2::invalidTypeId:
 		{
 			rb_warn("Trying to demarshall invalid type id");
 			return Qnil;
@@ -32,6 +32,7 @@ static VALUE unmarshall_value(const Exiv2::Value& value) {
 			value.copy((Exiv2::byte *)STR(str), Exiv2::littleEndian);
 			LEN(str) = value.size() - 1;
 			STR(str)[LEN(str)] = '\0';
+			LEN(str) = strlen(STR(str));
 			return str;
 		}
 		
@@ -96,6 +97,67 @@ static VALUE exiv2_exif_get(VALUE self, VALUE key) {
 }
 
 /*
+ * First, I have to get out type by key. If such key is forbidden, I will refuse to marshall it.
+ * Then, I will cast ruby VALUE to C++ value, according to type_id
+ * then I will just set apropreciated hash entry to this casted value
+ */
+static bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE value) {
+	Exiv2::ExifKey exif_key(key);
+	Exiv2::TypeId type_id = Exiv2::ExifTags::tagType(exif_key.tag(), exif_key.ifdId());
+	switch(type_id) {
+		case Exiv2::invalidTypeId:
+		{
+			rb_warn("Trying to marshall invalid type id");
+			return Qnil;
+		}
+		
+		case Exiv2::unsignedByte:
+		case Exiv2::unsignedShort:
+		case Exiv2::unsignedLong:
+		case Exiv2::signedShort:
+		case Exiv2::signedLong: 
+		{
+			exifData[key] = NUM2INT(value);
+			return true;
+		}
+		
+		case Exiv2::asciiString:
+		case Exiv2::string: 
+		case Exiv2::undefined:
+		{
+			exifData[key] = std::string(STR(value));
+			return true;
+		}
+		
+		case Exiv2::unsignedRational:
+		case Exiv2::signedRational: 
+		{
+			if(rb_respond_to(value, rb_intern("nominator"))) {
+				int nominator = rb_funcall(value, rb_intern("nominator"), 0);
+				int denominator = rb_funcall(value, rb_intern("denominator"), 0);
+				exifData[key] = Exiv2::Rational(nominator, denominator);
+				return true;
+			}
+			exifData[key] = Exiv2::Rational(NUM2INT(value), 1);
+			return true;
+		}
+		
+		case Exiv2::invalid6:
+		case Exiv2::date:
+		case Exiv2::time:
+		case Exiv2::comment:
+		case Exiv2::directory:
+		case Exiv2::lastTypeId:
+		{
+			exifData[key] = std::string(STR(value));
+			return true;
+		}
+	}
+	return false;
+}
+
+
+/*
  *  @exif["Exif.Photo.PixelXDimension"] = 3024
  * [] — is a universal accessor
  */
@@ -105,12 +167,19 @@ static VALUE exiv2_exif_set(VALUE self, VALUE key, VALUE value) {
 	Data_Get_Struct(self, rbImage, image);
 
 	VALUE strkey = rb_funcall(key, rb_intern("to_s"), 0);
-	VALUE strvalue = rb_funcall(value, rb_intern("to_s"), 0);
-	Exiv2::ExifData &exifData = image->image->exifData();
+	bool marshalled = false;
+	{
+		Exiv2::ExifData &exifData = image->image->exifData();
 
-	exifData[STR(strkey)] = STR(strvalue);
+		marshalled = marshall_value(exifData, STR(strkey), value);
+	}
+	
+	if(!marshalled) {
+		THROW("Couldn't write %s", STR(strkey));
+	}
+
 	image->dirty = true;
-	return strvalue;
+	return value;
 	__NIL_END
 }
 
