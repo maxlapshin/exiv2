@@ -132,10 +132,10 @@ static bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE val
 		case Exiv2::unsignedRational:
 		case Exiv2::signedRational: 
 		{
-			if(rb_respond_to(value, rb_intern("nominator"))) {
-				int nominator = rb_funcall(value, rb_intern("nominator"), 0);
-				int denominator = rb_funcall(value, rb_intern("denominator"), 0);
-				exifData[key] = Exiv2::Rational(nominator, denominator);
+			if(rb_respond_to(value, rb_intern("numerator"))) {
+				int numerator = NUM2INT(rb_funcall(value, rb_intern("numerator"), 0));
+				int denominator = NUM2INT(rb_funcall(value, rb_intern("denominator"), 0));
+				exifData[key] = Exiv2::Rational(numerator, denominator);
 				return true;
 			}
 			exifData[key] = Exiv2::Rational(NUM2INT(value), 1);

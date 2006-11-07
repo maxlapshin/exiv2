@@ -39,7 +39,7 @@ class ImageTest < Test::Unit::TestCase
     end
   end
   
-  def test_write
+  def test_write_string
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename)
       assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
@@ -50,6 +50,32 @@ class ImageTest < Test::Unit::TestCase
       assert_equal "*istDs", @img.exif["Exif.Image.Model"]
     end
   end
+
+  def test_write_int
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal 3024, @img.exif["Exif.Photo.PixelXDimension"]
+      assert_equal 25, @img.exif["Exif.Photo.PixelXDimension"] = 25
+      assert @img.save
+
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal 25, @img.exif["Exif.Photo.PixelXDimension"]
+    end
+  end
+
+  def test_write_rational
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal Rational.new!(72, 1), @img.exif["Exif.Image.XResolution"]
+      assert_equal Rational.new!(27, 11), @img.exif["Exif.Image.XResolution"] = Rational.new!(27, 11)
+      assert @img.save
+
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal Rational.new!(27, 11), @img.exif["Exif.Image.XResolution"]
+    end
+  end
+
+
 
   def test_comment
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
