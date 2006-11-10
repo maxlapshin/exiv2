@@ -1,13 +1,51 @@
 #include "exiv2.hpp"
 
 
-static VALUE unmarshall_value(const Exiv2::Value& value) {
+typedef VALUE (unmarshaller)(const Exiv2::Value& value, long pos = 0);
+
+static VALUE unmarshall_long_value(const Exiv2::Value& value, long pos = 0) {
+	return INT2NUM(value.toLong(pos));
+}
+
+
+static VALUE unmarshall_rational_value(const Exiv2::Value& value, long pos = 0) {
+	Exiv2::Rational r = value.toRational(pos);
+	ID rational_id = rb_intern("Rational");
+	if(rb_const_defined(rb_cObject, rational_id)) {
+		VALUE rational = rb_const_get(rb_cObject, rational_id);
+		return rb_funcall(rational, rb_intern("new!"), 2, INT2NUM(r.first), INT2NUM(r.second));
+	}
+	return INT2NUM(r.first/r.second);
+	
+}
+
+
+static VALUE unmarshall_multiple_values(const Exiv2::Value& value, unmarshaller f) {
 	if(value.count() <= 0) {
 		rb_warn("Empty value (no entries)");
 		return Qnil;
 	}
 	
+
+	if(value.count() == 1) {
+		return f(value);
+	}
+	
+	VALUE retval = rb_ary_new2(value.count());
+	for(int i = 0; i < value.count(); i++) {
+		rb_ary_store(retval, i, f(value, i));
+	}
+	return retval;
+	
+}
+
+
+
+
+static VALUE unmarshall_value(const Exiv2::Value& value) {
 	Exiv2::TypeId type_id = value.typeId();
+	
+	
 	switch(type_id) {
 		case Exiv2::invalidTypeId:
 		{
@@ -21,24 +59,22 @@ static VALUE unmarshall_value(const Exiv2::Value& value) {
 		case Exiv2::signedShort:
 		case Exiv2::signedLong: 
 		{
-			return INT2NUM(value.toLong());
+			return unmarshall_multiple_values(value, unmarshall_long_value);
 		}
 		
 		case Exiv2::asciiString:
 		case Exiv2::string: 
 		case Exiv2::undefined:
 		{
-			VALUE str = rb_str_buf_new(value.size() - 1);
-			value.copy((Exiv2::byte *)STR(str), Exiv2::littleEndian);
-			LEN(str) = value.size() - 1;
-			STR(str)[LEN(str)] = '\0';
-			LEN(str) = strlen(STR(str));
-			return str;
+			std::string str_value = value.toString();
+			return rb_str_new(str_value.c_str(), str_value.length());
 		}
 		
 		case Exiv2::unsignedRational:
 		case Exiv2::signedRational: 
 		{
+			return unmarshall_multiple_values(value, unmarshall_rational_value);
+			
 			Exiv2::Rational r = value.toRational();
 			ID rational_id = rb_intern("Rational");
 			if(rb_const_defined(rb_cObject, rational_id)) {
@@ -66,6 +102,7 @@ static VALUE unmarshall_value(const Exiv2::Value& value) {
 	}
 	return Qfalse;
 }
+
 
 /*
  * Access exif tag by name
@@ -288,36 +325,96 @@ static VALUE exiv2_exif_empty(VALUE self) {
 }
 
 
-/*
+
 static void tag_leave(Exiv2::TagInfo* info) {
 	
 }
 
-static VALUE create_exiv2_tag(VALUE exif, Exiv2::TagInfo* info) {
-	VALUE tag_info = Data_Wrap_Struct(cTag, 0, tag_leave, info);
-	rb_iv_set(tag_info, "@exif", exif);
-	return tag_info;
-}
-static VALUE exiv2_exif_tags_each(VALUE self) {
-    for (int i=0; Exiv2::ifdTagInfo[i].tag_ != 0xffff; ++i) {
-		rb_yield(create_exiv2_tag(self, Exiv2::ifdTagInfo + i));
-    }
-    for (int i=0; Exiv2::exifTagInfo[i].tag_ != 0xffff; ++i) {
-		rb_yield(create_exiv2_tag(self, Exiv2::exifTagInfo + i));
-    }
-    for (int i=0; Exiv2::iopTagInfo[i].tag_ != 0xffff; ++i) {
-		rb_yield(create_exiv2_tag(self, Exiv2::iopTagInfo + i));
-    }
-    for (int i=0; Exiv2::gpsTagInfo[i].tag_ != 0xffff; ++i) {
-		rb_yield(create_exiv2_tag(self, Exiv2::gpsTagInfo + i));
-    }
-	return self;
+static VALUE create_exiv2_tag(Exiv2::TagInfo* info) {
+	return Data_Wrap_Struct(cTag, 0, tag_leave, info);
 }
 
-static VALUE exiv2_iptc_tags_each(VALUE self) {
-	
+static int iterate_tag_collection(const Exiv2::TagInfo* collection, bool to_yield = true) {
+	Exiv2::TagInfo* _collection = const_cast<Exiv2::TagInfo *>(collection);
+	int i;
+    for (i=0; _collection[i].tag_ != 0xffff; ++i) {
+		if(to_yield) {
+			rb_yield(create_exiv2_tag(_collection + i));
+		}
+    }
+	return i;
 }
-*/
+
+#ifdef HAVE_IFDTAGLIST
+static VALUE exiv2_tags_each(VALUE self) {
+	__BEGIN
+	iterate_tag_collection(Exiv2::ExifTags::ifdTagList());
+	iterate_tag_collection(Exiv2::ExifTags::exifTagList());
+	iterate_tag_collection(Exiv2::ExifTags::iopTagList());
+	iterate_tag_collection(Exiv2::ExifTags::gpsTagList());
+	return self;
+	__END
+}
+
+
+
+static VALUE exiv2_tags_count(VALUE self) {
+	__BEGIN
+	return INT2NUM(
+	iterate_tag_collection(Exiv2::ExifTags::ifdTagList(), false) +
+	iterate_tag_collection(Exiv2::ExifTags::exifTagList(), false) +
+	iterate_tag_collection(Exiv2::ExifTags::iopTagList(), false) +
+	iterate_tag_collection(Exiv2::ExifTags::gpsTagList(), false)
+	);
+	__END
+}
+#endif /* HAVE_IFDTAGLIST */
+
+static VALUE exiv2_tag_name(VALUE self) {
+	__BEGIN
+	Exiv2::TagInfo* tag;
+	Data_Get_Struct(self, Exiv2::TagInfo, tag);
+	
+	return tag->name_ ? rb_str_new2(tag->name_) : Qnil;
+	__END
+}
+
+static VALUE exiv2_tag_title(VALUE self) {
+	__BEGIN
+	Exiv2::TagInfo* tag;
+	Data_Get_Struct(self, Exiv2::TagInfo, tag);
+	
+	return tag->title_ ? rb_str_new2(tag->title_) : Qnil;
+	__END
+}
+
+static VALUE exiv2_tag_desc(VALUE self) {
+	__BEGIN
+	Exiv2::TagInfo* tag;
+	Data_Get_Struct(self, Exiv2::TagInfo, tag);
+	
+	return tag->desc_ ? rb_str_new2(tag->desc_) : Qnil;
+	__END
+}
+
+static VALUE exiv2_tag_section(VALUE self) {
+	__BEGIN
+	Exiv2::TagInfo* tag;
+	Data_Get_Struct(self, Exiv2::TagInfo, tag);
+	
+	return rb_str_new2(Exiv2::ExifTags::sectionName(tag->sectionId_));
+	__END
+}
+
+static VALUE exiv2_tag_ifd(VALUE self) {
+	__BEGIN
+	Exiv2::TagInfo* tag;
+	Data_Get_Struct(self, Exiv2::TagInfo, tag);
+	
+	return rb_str_new2(Exiv2::ExifTags::ifdName(tag->ifdId_));
+	__END
+}
+
 
 void Init_exif() {
 	cExif = rb_define_class_under(mExiv2, "Exif", rb_cObject);
@@ -328,8 +425,17 @@ void Init_exif() {
 	rb_define_method(cExif, "clear", VALUEFUNC(exiv2_exif_clear), 0);
 	rb_define_method(cExif, "count", VALUEFUNC(exiv2_exif_count), 0);
 	rb_define_method(cExif, "empty?", VALUEFUNC(exiv2_exif_empty), 0);
-//	rb_define_singleton_method(cExif, "exif_tags_each", VALUEFUNC(exiv2_exif_tags_each), 0);
 //	rb_define_singleton_method(cExif, "iptc_tags_each", VALUEFUNC(exiv2_iptc_tags_each), 0);
 	
 	cTag = rb_define_class_under(mExiv2, "Tag", rb_cObject);
+#ifdef HAVE_IFDTAGLIST
+	rb_define_singleton_method(cTag, "each", VALUEFUNC(exiv2_tags_each), 0);
+	rb_define_singleton_method(cTag, "count", VALUEFUNC(exiv2_tags_count), 0);
+#endif /* HAVE_IFDTAGLIST */
+	
+	rb_define_method(cTag, "ifd", VALUEFUNC(exiv2_tag_ifd), 0);
+	rb_define_method(cTag, "section", VALUEFUNC(exiv2_tag_section), 0);
+	rb_define_method(cTag, "name", VALUEFUNC(exiv2_tag_name), 0);
+	rb_define_method(cTag, "title", VALUEFUNC(exiv2_tag_title), 0);
+	rb_define_method(cTag, "desc", VALUEFUNC(exiv2_tag_desc), 0);
 }

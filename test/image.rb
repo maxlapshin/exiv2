@@ -129,10 +129,48 @@ class ImageTest < Test::Unit::TestCase
     end
   end
   
+  def test_read_undefined
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal "48 49 48 48 ", @img.exif["Exif.Iop.InteroperabilityVersion"]
+    end
+  end
+
+  def test_read_ascii
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal "R98", @img.exif["Exif.Iop.InteroperabilityIndex"]
+    end
+  end
+  
   def __test_thumbnail
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename)
       
     end
+  end
+  
+  def test_read_multiple_rationals
+    open_test_file "gps-test.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      require 'rational'
+      assert_equal [Rational.new!(41, 1), Rational.new!(53, 1), Rational.new!(4091, 100)], @img.exif["Exif.GPSInfo.GPSLatitude"]
+      assert_equal [Rational.new!(12, 1), Rational.new!(28, 1), Rational.new!(5996, 100)], @img.exif["Exif.GPSInfo.GPSLongitude"]
+    end
+  end
+  
+  def test_tag_access
+    return unless Exiv2::Tag.respond_to?(:count)
+    assert_equal 139, Exiv2::Tag.count
+    exif_tag = nil
+    Exiv2::Tag.each do |tag|
+      exif_tag = tag
+      break
+    end
+    assert_equal "IFD0", exif_tag.ifd
+    assert_equal "ImageStructure", exif_tag.section
+    assert_equal "NewSubfileType", exif_tag.name
+    assert_equal "New Subfile Type", exif_tag.title
+    assert_equal "A general indication of the kind of data contained in this subfile.", exif_tag.desc
   end
 end
