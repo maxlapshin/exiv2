@@ -29,7 +29,7 @@ static VALUE exiv2_iptc_get(VALUE self, VALUE key) {
 	__NIL_END
 }
 
-
+#if 0
 /*
  *  @iptc["Iptc.Application2.ObjectName"] = "GreeenDude"
  * [] — is a universal accessor
@@ -50,7 +50,7 @@ static VALUE exiv2_iptc_set(VALUE self, VALUE key, VALUE value) {
 	return value;
 	__NIL_END
 }
-
+#endif
 
 /*
  * Iterates through all iptc tags in image

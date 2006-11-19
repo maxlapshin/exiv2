@@ -48,6 +48,24 @@ static VALUE exiv2_image_initialize(VALUE self, VALUE file) {
 	__END
 }
 
+/*
+ *
+ * Load Exiv2::Image from memory string
+ * content = File.open("a.jpg").read
+ * img = Exiv2::Image.load_string(content)
+ */
+static VALUE exiv2_image_load_string(VALUE self, VALUE string) {
+	__BEGIN
+	Check_Type(string, T_STRING);
+	rbImage* image = new rbImage();
+	image->dirty = false;
+	VALUE img = Data_Wrap_Struct(self, 0, image_delete, image);
+	
+	image->image = Exiv2::ImageFactory::open(CBSTR(string), LEN(string));
+	return img;
+	__END
+}
+
 
 static void image_real_save(rbImage* image) {
 	if(image->dirty) {
@@ -188,6 +206,8 @@ void Init_image() {
 	cImage = rb_define_class_under(mExiv2, "Image", rb_cObject);
 	rb_define_alloc_func(cImage, exiv2_image_s_allocate);
 	rb_define_method(cImage, "initialize", VALUEFUNC(exiv2_image_initialize), 1);
+	rb_define_singleton_method(cImage, "load_string", VALUEFUNC(exiv2_image_load_string), 1);
+	
 	rb_define_method(cImage, "exif", VALUEFUNC(exiv2_image_exif), 0);
 	rb_define_method(cImage, "iptc", VALUEFUNC(exiv2_image_iptc), 0);
 
