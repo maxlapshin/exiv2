@@ -33,7 +33,6 @@ spec = Gem::Specification.new do |s|
   s.files = FileList["{bin,test,lib}/**/*"].exclude("rdoc").exclude(".svn").exclude(".DS_Store").exclude("**/*.o").exclude("**/*.bundle").exclude("**/*.log").to_a
   s.files << ["Rakefile", "README", "init.rb"]
   s.test_files = FileList["{test}/**/*test.rb"].to_a
-  s.autorequire = "intersys"
   s.has_rdoc = true
   s.extra_rdoc_files = ["README"]
   s.rdoc_options = PKG_RDOC_OPTS
