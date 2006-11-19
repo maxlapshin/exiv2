@@ -127,8 +127,21 @@ static VALUE exiv2_image_exif(VALUE self) {
 	rbImage* image;
 	Data_Get_Struct(self, rbImage, image);
 	VALUE exif = Data_Wrap_Struct(cExif, 0, image_leave, image);
-	rb_iv_set(self, "image", self);
+	rb_iv_set(exif, "@image", self);
 	return exif;
+	__END
+}
+
+/*
+ * Access to iptc data of image
+ */
+static VALUE exiv2_image_iptc(VALUE self) {
+	__BEGIN
+	rbImage* image;
+	Data_Get_Struct(self, rbImage, image);
+	VALUE iptc = Data_Wrap_Struct(cIptc, 0, image_leave, image);
+	rb_iv_set(iptc, "@image", self);
+	return iptc;
 	__END
 }
 
@@ -176,6 +189,7 @@ void Init_image() {
 	rb_define_alloc_func(cImage, exiv2_image_s_allocate);
 	rb_define_method(cImage, "initialize", VALUEFUNC(exiv2_image_initialize), 1);
 	rb_define_method(cImage, "exif", VALUEFUNC(exiv2_image_exif), 0);
+	rb_define_method(cImage, "iptc", VALUEFUNC(exiv2_image_iptc), 0);
 
 	rb_define_method(cImage, "thumbnail", VALUEFUNC(exiv2_image_thumbnail), 1);
 	rb_define_method(cImage, "thumbnail=", VALUEFUNC(exiv2_image_thumbnail_set), 1);

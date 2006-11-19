@@ -58,6 +58,7 @@ void Init_exiv2() {
 	
 	Init_image();
 	Init_exif();
+	Init_iptc();
 	//cThumbnail = rb_define_class_under(mExiv2, "Thumbnail", rb_cObject);
 	//rb_define_method(cThumbnail, "extension", VALUEFUNC(exiv2_thumb_ext), 0);
 	//rb_define_method(cThumbnail, "format", VALUEFUNC(exiv2_thumb_format), 0);

@@ -173,4 +173,11 @@ class ImageTest < Test::Unit::TestCase
     assert_equal "New Subfile Type", exif_tag.title
     assert_equal "A general indication of the kind of data contained in this subfile.", exif_tag.desc
   end
+  
+  def test_iptc_get
+    open_test_file "smiley1.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal "Seattle", @img.iptc["Iptc.Application2.City"]
+    end
+  end
 end

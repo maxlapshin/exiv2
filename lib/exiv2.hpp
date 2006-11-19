@@ -33,6 +33,7 @@
 // included header files
 #include <image.hpp>
 #include <exif.hpp>
+#include <iptc.hpp>
 
 
 #include <string>
@@ -101,9 +102,12 @@ struct rbImage {
 	Exiv2::Image::AutoPtr image;
 };
 
+bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE value);
+VALUE unmarshall_value(const Exiv2::Value& value);
 
 void Init_image();
 void Init_exif();
+void Init_iptc();
 
 
 #endif /* EXIV2_HPP_ */
