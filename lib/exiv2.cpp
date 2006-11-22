@@ -51,7 +51,7 @@ extern "C"
 
 
 
-void Init_exiv2() {
+void Init_exiv2_bin() {
 	mExiv2 = rb_define_module("Exiv2");
 	
 	eError = rb_define_class_under(mExiv2, "Error", rb_eStandardError);

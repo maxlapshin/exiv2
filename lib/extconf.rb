@@ -60,5 +60,5 @@ int main(void) {
 }
  SRC
  end
-create_makefile 'exiv2'
+create_makefile 'exiv2_bin'
 
