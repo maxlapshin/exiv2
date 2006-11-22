@@ -78,7 +78,16 @@ class ImageTest < Test::Unit::TestCase
     end
   end
 
+  # test for type errors when writing non-convertible values
+  def test_typerror
+    open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
 
+      assert_raise(TypeError, "Setting of non-convertable values should raise an TypeError") do
+        @img.exif["Exif.Image.XResolution"] = "lala"
+      end
+    end
+  end
 
   def test_comment
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
