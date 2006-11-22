@@ -2,7 +2,7 @@
 
 require "mkmf"
 CONFIG["CPP"] = "g++ -E "
-CONFIG["CC"] = "g++ -c "
+CONFIG["CC"] = "g++  "
 
 
 #
