@@ -10,7 +10,31 @@ CONFIG["CC"] = "g++ -c "
 $CPPFLAGS << " -Wall -I/usr/include/exiv2 -I/Users/max/Sites/exif/include/exiv2 "
 $LDFLAGS << " -lstdc++ -L/Users/max/Sites/exif/lib "
 have_header "exif.hpp"
-have_library "exiv2", "_ZN5Exiv29MetadatumD0Ev"
+
+
+image_factory_open = "Exiv2::ImageFactory::open"
+def image_factory_open.upcase
+  "IMGFACTORYOPEN"
+end
+have_library "exiv2", image_factory_open do  <<-SRC
+  #include <image.hpp>
+  #include <exif.hpp>
+
+
+  #include <string>
+  #include <vector>
+  #include <iostream>
+  #include <fstream>
+  #include <iomanip>
+  #include <cstring>
+  #include <cassert>
+
+  #include <stdarg.h>
+int main(void) {
+  #{image_factory_open}("a");
+}
+ SRC
+end
 
 
 ifd_tag_list = "Exiv2::ExifTags::ifdTagList"
@@ -32,7 +56,7 @@ have_func ifd_tag_list do <<-SRC
 
   #include <stdarg.h>
 int main(void) {
-  Exiv2::ExifTags::ifdTagList();
+  #{ifd_tag_list}();
 }
  SRC
  end
