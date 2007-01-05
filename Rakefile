@@ -31,12 +31,13 @@ spec = Gem::Specification.new do |s|
   s.rubyforge_project = PKG_NAME
   s.files = %w(README Rakefile setup.rb init.rb) +
     Dir.glob("{test}/**/*") + 
-    Dir.glob("lib/**/*.{h,cpp,rb}")
+    Dir.glob("ext/**/*.{h,cpp,rb,hpp}") +
+    Dir.glob("lib/**/*.rb")
   s.test_files = FileList["{test}/**/*.rb"].to_a
   s.has_rdoc = true
   s.extra_rdoc_files = ["README"]
   s.rdoc_options = PKG_RDOC_OPTS
-  s.extensions << 'lib/extconf.rb'
+  s.extensions << 'ext/extconf.rb'
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
