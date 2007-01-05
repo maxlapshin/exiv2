@@ -4,7 +4,6 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 require 'rake/packagetask'
 require 'rake/contrib/rubyforgepublisher'
-#require 'lib/intersys'
 
 PKG_NAME = "ruby-exiv2"
 PKG_VERSION = "0.5"
@@ -30,13 +29,13 @@ spec = Gem::Specification.new do |s|
   s.summary = PKG_SUMMARY
   s.require_path = "lib"
   s.rubyforge_project = PKG_NAME
-  s.files = FileList["{bin,test,lib}/**/*"].exclude("rdoc").exclude(".svn").exclude(".DS_Store").exclude("**/*.o").exclude("**/*.bundle").exclude("**/*.log").to_a
-  s.files << ["Rakefile", "README", "init.rb"]
-  s.test_files = FileList["{test}/**/*test.rb"].to_a
+  s.files = %w(README Rakefile setup.rb init.rb) +
+    Dir.glob("{test}/**/*") + 
+    Dir.glob("lib/**/*.{h,cpp,rb}")
+  s.test_files = FileList["{test}/**/*.rb"].to_a
   s.has_rdoc = true
   s.extra_rdoc_files = ["README"]
   s.rdoc_options = PKG_RDOC_OPTS
-  s.add_dependency("activesupport", ">= 1.0")
   s.extensions << 'lib/extconf.rb'
 end
 
@@ -63,8 +62,8 @@ task :stats  do
   ).to_s
 end
 
-desc "Generate file with C++ with all methods"
-task "ruby-exiv2.cpp".to_sym do
+desc "Generate file with C++ with all methods for proper rdoc"
+file "ruby-exiv2.cpp" do
   `cat lib/*.cpp > ruby-exiv2.cpp`
 end
 
