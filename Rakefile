@@ -6,7 +6,7 @@ require 'rake/packagetask'
 require 'rake/contrib/rubyforgepublisher'
 
 PKG_NAME = "ruby-exiv2"
-PKG_VERSION = "0.6"
+PKG_VERSION = "0.7"
 PKG_AUTHOR = "Max Lapshin"
 PKG_EMAIL = "max@maxidoors.ru"
 PKG_HOMEPAGE = "http://maxidoors.ru/"
