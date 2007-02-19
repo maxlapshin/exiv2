@@ -1,5 +1,70 @@
 #include "exiv2.hpp"
 
+/*
+ * First, I have to get out type by key. If such key is forbidden, I will refuse to marshall it.
+ * Then, I will cast ruby VALUE to C++ value, according to type_id
+ * then I will just set apropreciated hash entry to this casted value
+ */
+static bool marshall_value(Exiv2::IptcData &data, const char* key, VALUE value) {
+	Exiv2::TypeId type_id;
+	try {
+		Exiv2::IptcKey iptcKey(key);
+		type_id = Exiv2::IptcDataSets::dataSetType(iptcKey.tag(), iptcKey.record());
+	}
+	catch(Exiv2::Error& e) {
+		rb_raise(eError, "Cannot set tag %s because it doesn't exists. Look at http://www.exiv2.org/tags.html for list of supported tags", key);
+	}
+	switch(type_id) {
+		case Exiv2::invalidTypeId:
+		{
+			rb_warn("Trying to marshall invalid type id");
+			return Qnil;
+		}
+		
+		case Exiv2::unsignedByte:
+		case Exiv2::unsignedShort:
+		case Exiv2::unsignedLong:
+		case Exiv2::signedShort:
+		case Exiv2::signedLong: 
+		{
+			data[key] = NUM2INT(value);
+			return true;
+		}
+		
+		case Exiv2::asciiString:
+		case Exiv2::string: 
+		case Exiv2::undefined:
+		{
+			data[key] = std::string(STR(value));
+			return true;
+		}
+		
+		case Exiv2::unsignedRational:
+		case Exiv2::signedRational: 
+		{
+			if(rb_respond_to(value, rb_intern("numerator"))) {
+				int numerator = NUM2INT(rb_funcall(value, rb_intern("numerator"), 0));
+				int denominator = NUM2INT(rb_funcall(value, rb_intern("denominator"), 0));
+				data[key] = numerator / denominator;
+				return true;
+			}
+			data[key] = int(NUM2INT(value));
+			return true;
+		}
+		
+		case Exiv2::invalid6:
+		case Exiv2::date:
+		case Exiv2::time:
+		case Exiv2::comment:
+		case Exiv2::directory:
+		case Exiv2::lastTypeId:
+		{
+			data[key] = std::string(STR(value));
+			return true;
+		}
+	}
+	return false;
+}
 
 
 /*
@@ -41,7 +106,7 @@ static VALUE exiv2_iptc_set(VALUE self, VALUE key, VALUE value) {
 
 	VALUE strkey = rb_funcall(key, rb_intern("to_s"), 0);
 
-	if(!marshall_value<Exiv2::IptcData>(image->image->iptcData(), STR(strkey), value)) {
+	if(!marshall_value(image->image->iptcData(), STR(strkey), value)) {
 		THROW("Couldn't write %s", STR(strkey));
 	}
 	

@@ -25,56 +25,56 @@ class ImageTest < Test::Unit::TestCase
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
       open(filename) do |image_file|
         assert @img = Exiv2::Image.new(image_file), "Image should be opened from IO::File"
-        assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
-        assert_equal nil, @img.exif["zeze"]
+        assert_equal "FinePixS2Pro", @img["Exif.Image.Model"]
+        assert_equal nil, @img["zeze"]
         assert_raise(Exiv2::Error, "Setting of invalid tag should raise an exception") do
-          @img.exif["zeze"] = "lala"
+          @img["zeze"] = "lala"
         end
-        assert_equal 3024, @img.exif["Exif.Photo.PixelXDimension"]
+        assert_equal 3024, @img["Exif.Photo.PixelXDimension"]
       end
     end
     
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename), "Image should be opened from filename"
-      assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
-      assert_equal nil, @img.exif["zeze"]
-      assert_equal 3024, @img.exif["Exif.Photo.PixelXDimension"]
+      assert_equal "FinePixS2Pro", @img["Exif.Image.Model"]
+      assert_equal nil, @img["zeze"]
+      assert_equal 3024, @img["Exif.Photo.PixelXDimension"]
     end
   end
   
   def test_write_string
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename)
-      assert_equal "FinePixS2Pro", @img.exif["Exif.Image.Model"]
-      assert_equal "*istDs", @img.exif["Exif.Image.Model"] = "*istDs"
+      assert_equal "FinePixS2Pro", @img["Exif.Image.Model"]
+      assert_equal "*istDs", @img["Exif.Image.Model"] = "*istDs"
       assert @img.save
 
       assert @img = Exiv2::Image.new(filename)
-      assert_equal "*istDs", @img.exif["Exif.Image.Model"]
+      assert_equal "*istDs", @img["Exif.Image.Model"]
     end
   end
 
   def test_write_int
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename)
-      assert_equal 3024, @img.exif["Exif.Photo.PixelXDimension"]
-      assert_equal 25, @img.exif["Exif.Photo.PixelXDimension"] = 25
+      assert_equal 3024, @img["Exif.Photo.PixelXDimension"]
+      assert_equal 25, @img["Exif.Photo.PixelXDimension"] = 25
       assert @img.save
 
       assert @img = Exiv2::Image.new(filename)
-      assert_equal 25, @img.exif["Exif.Photo.PixelXDimension"]
+      assert_equal 25, @img["Exif.Photo.PixelXDimension"]
     end
   end
 
   def test_write_rational
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename)
-      assert_equal Rational.new!(72, 1), @img.exif["Exif.Image.XResolution"]
-      assert_equal Rational.new!(27, 11), @img.exif["Exif.Image.XResolution"] = Rational.new!(27, 11)
+      assert_equal Rational.new!(72, 1), @img["Exif.Image.XResolution"]
+      assert_equal Rational.new!(27, 11), @img["Exif.Image.XResolution"] = Rational.new!(27, 11)
       assert @img.save
 
       assert @img = Exiv2::Image.new(filename)
-      assert_equal Rational.new!(27, 11), @img.exif["Exif.Image.XResolution"]
+      assert_equal Rational.new!(27, 11), @img["Exif.Image.XResolution"]
     end
   end
 
@@ -84,7 +84,7 @@ class ImageTest < Test::Unit::TestCase
       assert @img = Exiv2::Image.new(filename)
 
       assert_raise(TypeError, "Setting of non-convertable values should raise an TypeError") do
-        @img.exif["Exif.Image.XResolution"] = "lala"
+        @img["Exif.Image.XResolution"] = "lala"
       end
     end
   end
@@ -141,14 +141,14 @@ class ImageTest < Test::Unit::TestCase
   def test_read_undefined
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename)
-      assert_equal "48 49 48 48 ", @img.exif["Exif.Iop.InteroperabilityVersion"]
+      assert_equal "48 49 48 48 ", @img["Exif.Iop.InteroperabilityVersion"]
     end
   end
 
   def test_read_ascii
     open_test_file "exiv2-fujifilm-finepix-s2pro.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename)
-      assert_equal "R98", @img.exif["Exif.Iop.InteroperabilityIndex"]
+      assert_equal "R98", @img["Exif.Iop.InteroperabilityIndex"]
     end
   end
   
@@ -163,8 +163,8 @@ class ImageTest < Test::Unit::TestCase
     open_test_file "gps-test.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename)
       require 'rational'
-      assert_equal [Rational.new!(41, 1), Rational.new!(53, 1), Rational.new!(4091, 100)], @img.exif["Exif.GPSInfo.GPSLatitude"]
-      assert_equal [Rational.new!(12, 1), Rational.new!(28, 1), Rational.new!(5996, 100)], @img.exif["Exif.GPSInfo.GPSLongitude"]
+      assert_equal [Rational.new!(41, 1), Rational.new!(53, 1), Rational.new!(4091, 100)], @img["Exif.GPSInfo.GPSLatitude"]
+      assert_equal [Rational.new!(12, 1), Rational.new!(28, 1), Rational.new!(5996, 100)], @img["Exif.GPSInfo.GPSLongitude"]
     end
   end
   
@@ -186,7 +186,18 @@ class ImageTest < Test::Unit::TestCase
   def test_iptc_get
     open_test_file "smiley1.jpg" do |filename|
       assert @img = Exiv2::Image.new(filename)
-      assert_equal "Seattle", @img.iptc["Iptc.Application2.City"]
+      assert_equal "Seattle", @img["Iptc.Application2.City"]
+    end
+  end
+
+  def test_iptc_get
+    open_test_file "smiley1.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal "Moscow", @img["Iptc.Application2.City"] = "Moscow"
+      assert @img.save
+      
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal "Moscow", @img["Iptc.Application2.City"]
     end
   end
 end
