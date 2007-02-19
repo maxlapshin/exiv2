@@ -1,42 +1,48 @@
 #include "exiv2.hpp"
 
 
-typedef VALUE (unmarshaller)(const Exiv2::Value& value, long pos = 0);
+class Unmarshaller {
+public:
+	virtual VALUE unmarshall(const Exiv2::Value& value, long pos = 0) = 0;
+	virtual ~Unmarshaller() {};
+};
 
-static VALUE unmarshall_long_value(const Exiv2::Value& value, long pos = 0) {
-	return INT2NUM(value.toLong(pos));
-}
-
-
-static VALUE unmarshall_rational_value(const Exiv2::Value& value, long pos = 0) {
-	Exiv2::Rational r = value.toRational(pos);
-	ID rational_id = rb_intern("Rational");
-	if(rb_const_defined(rb_cObject, rational_id)) {
-		VALUE rational = rb_const_get(rb_cObject, rational_id);
-		return rb_funcall(rational, rb_intern("new!"), 2, INT2NUM(r.first), INT2NUM(r.second));
+class unmarshall_long_value : public Unmarshaller {
+public:
+	virtual VALUE unmarshall(const Exiv2::Value& value, long pos = 0) {
+		return INT2NUM(value.toLong(pos));
 	}
-	return INT2NUM(r.first/r.second);
-	
-}
+};
 
+class unmarshall_rational_value : public Unmarshaller {
+public:
+	virtual VALUE unmarshall(const Exiv2::Value& value, long pos = 0) {
+		Exiv2::Rational r = value.toRational(pos);
+		ID rational_id = rb_intern("Rational");
+		if(rb_const_defined(rb_cObject, rational_id)) {
+			VALUE rational = rb_const_get(rb_cObject, rational_id);
+			return rb_funcall(rational, rb_intern("new!"), 2, INT2NUM(r.first), INT2NUM(r.second));
+		}
+		return INT2NUM(r.first/r.second);
+	}
+};
 
-static VALUE unmarshall_multiple_values(const Exiv2::Value& value, unmarshaller f) {
+static VALUE unmarshall_multiple_values(const Exiv2::Value& value, Unmarshaller& f) {
 	if(value.count() <= 0) {
 		rb_warn("Empty value (no entries)");
 		return Qnil;
 	}
-	
+
 
 	if(value.count() == 1) {
-		return f(value);
+		return f.unmarshall(value);
 	}
-	
+
 	VALUE retval = rb_ary_new2(value.count());
 	for(int i = 0; i < value.count(); i++) {
-		rb_ary_store(retval, i, f(value, i));
+		rb_ary_store(retval, i, f.unmarshall(value, i));
 	}
 	return retval;
-	
 }
 
 
@@ -59,7 +65,8 @@ VALUE unmarshall_value(const Exiv2::Value& value) {
 		case Exiv2::signedShort:
 		case Exiv2::signedLong: 
 		{
-			return unmarshall_multiple_values(value, unmarshall_long_value);
+			unmarshall_long_value m;
+			return unmarshall_multiple_values(value, m);
 		}
 		
 		case Exiv2::asciiString:
@@ -73,7 +80,8 @@ VALUE unmarshall_value(const Exiv2::Value& value) {
 		case Exiv2::unsignedRational:
 		case Exiv2::signedRational: 
 		{
-			return unmarshall_multiple_values(value, unmarshall_rational_value);
+			unmarshall_rational_value m;
+			return unmarshall_multiple_values(value, m);
 			
 			Exiv2::Rational r = value.toRational();
 			ID rational_id = rb_intern("Rational");
@@ -108,7 +116,7 @@ VALUE unmarshall_value(const Exiv2::Value& value) {
  * Then, I will cast ruby VALUE to C++ value, according to type_id
  * then I will just set apropreciated hash entry to this casted value
  */
-bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE value) {
+template <class T> bool marshall_value(T &data, const char* key, VALUE value) {
 	Exiv2::TypeId type_id;
 	try {
 		Exiv2::ExifKey exif_key(key);
@@ -130,7 +138,7 @@ bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE value) {
 		case Exiv2::signedShort:
 		case Exiv2::signedLong: 
 		{
-			exifData[key] = NUM2INT(value);
+			data[key] = NUM2INT(value);
 			return true;
 		}
 		
@@ -138,7 +146,7 @@ bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE value) {
 		case Exiv2::string: 
 		case Exiv2::undefined:
 		{
-			exifData[key] = std::string(STR(value));
+			data[key] = std::string(STR(value));
 			return true;
 		}
 		
@@ -148,10 +156,10 @@ bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE value) {
 			if(rb_respond_to(value, rb_intern("numerator"))) {
 				int numerator = NUM2INT(rb_funcall(value, rb_intern("numerator"), 0));
 				int denominator = NUM2INT(rb_funcall(value, rb_intern("denominator"), 0));
-				exifData[key] = Exiv2::Rational(numerator, denominator);
+				data[key] = Exiv2::Rational(numerator, denominator);
 				return true;
 			}
-			exifData[key] = Exiv2::Rational(NUM2INT(value), 1);
+			data[key] = Exiv2::Rational(NUM2INT(value), 1);
 			return true;
 		}
 		
@@ -162,9 +170,10 @@ bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE value) {
 		case Exiv2::directory:
 		case Exiv2::lastTypeId:
 		{
-			exifData[key] = std::string(STR(value));
+			data[key] = std::string(STR(value));
 			return true;
 		}
 	}
 	return false;
 }
+

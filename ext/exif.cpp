@@ -42,9 +42,8 @@ static VALUE exiv2_exif_set(VALUE self, VALUE key, VALUE value) {
 	Data_Get_Struct(self, rbImage, image);
 
 	VALUE strkey = rb_funcall(key, rb_intern("to_s"), 0);
-	Exiv2::ExifData &exifData = image->image->exifData();
 
-	if(!marshall_value(exifData, STR(strkey), value)) {
+	if(!marshall_value(image->image->exifData(), STR(strkey), value)) {
 		THROW("Couldn't write %s", STR(strkey));
 	}
 	
@@ -157,7 +156,7 @@ static VALUE exiv2_exif_empty(VALUE self) {
 }
 
 
-
+#ifdef HAVE_IFDTAGLIST
 static void tag_leave(Exiv2::TagInfo* info) {
 	
 }
@@ -177,7 +176,6 @@ static int iterate_tag_collection(const Exiv2::TagInfo* collection, bool to_yiel
 	return i;
 }
 
-#ifdef HAVE_IFDTAGLIST
 static VALUE exiv2_tags_each(VALUE self) {
 	__BEGIN
 	iterate_tag_collection(Exiv2::ExifTags::ifdTagList());

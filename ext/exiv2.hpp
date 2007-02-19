@@ -102,7 +102,7 @@ struct rbImage {
 	Exiv2::Image::AutoPtr image;
 };
 
-bool marshall_value(Exiv2::ExifData &exifData, const char* key, VALUE value);
+template <class T> bool marshall_value(T &data, const char* key, VALUE value);
 VALUE unmarshall_value(const Exiv2::Value& value);
 
 void Init_image();

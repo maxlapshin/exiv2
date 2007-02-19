@@ -1,14 +1,25 @@
 #!/usr/bin/env ruby
 
 require "mkmf"
+require 'optparse'
 CONFIG["CPP"] = "g++ -E "
 CONFIG["CC"] = "g++  "
+CONFIG["LDSHARED"].gsub!(/^cc /,"g++ ")
 
 
-#
-# -I/usr/local/include/exiv2
-$CPPFLAGS << " -Wall -I/usr/include/exiv2 -I/Users/max/Sites/exif/include/exiv2 "
-$LDFLAGS << " -lstdc++ -L/Users/max/Sites/exif/lib "
+$CPPFLAGS << " -Wall -I/usr/include/exiv2 "
+$LDFLAGS << " -lstdc++ "
+
+OptionParser.new do |opts|
+  opts.on("-E PATH", "--exiv2-dir=PATH", "Prefix, where libexiv2 is installed: /usr/local") do |path|
+    $LDFLAGS << "-L" + path + "/lib "
+    $CPPFLAGS << "-I" + path + "/include "
+    $CPPFLAGS << "-I" + path + "/include/exiv2 "
+  end
+  opts.parse!(ARGV.include?("--") ? ARGV[ARGV.index("--")+1..-1] : ARGV.clone)
+end
+
+
 have_header "exif.hpp"
 
 

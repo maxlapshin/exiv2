@@ -29,7 +29,7 @@ static VALUE exiv2_iptc_get(VALUE self, VALUE key) {
 	__NIL_END
 }
 
-#if 0
+#if 1
 /*
  *  @iptc["Iptc.Application2.ObjectName"] = "GreeenDude"
  * [] — is a universal accessor
@@ -40,15 +40,15 @@ static VALUE exiv2_iptc_set(VALUE self, VALUE key, VALUE value) {
 	Data_Get_Struct(self, rbImage, image);
 
 	VALUE strkey = rb_funcall(key, rb_intern("to_s"), 0);
-	Exiv2::IptcData &iptcData = image->image->iptcData();
 
-	if(!marshall_value(iptcData, STR(strkey), value)) {
+	if(!marshall_value<Exiv2::IptcData>(image->image->iptcData(), STR(strkey), value)) {
 		THROW("Couldn't write %s", STR(strkey));
 	}
 	
 	image->dirty = true;
 	return value;
 	__NIL_END
+	
 }
 #endif
 
@@ -72,7 +72,6 @@ static VALUE exiv2_iptc_each(int argc, VALUE *argv, VALUE self) {
 	for(Exiv2::IptcData::const_iterator i = iptcData.begin(); i != end; ++i) {
 		VALUE key = rb_str_new(i->key().c_str(), i->key().length());
 		VALUE val = unmarshall_value(i->value());
-		//VALUE val = rb_str_new(i->toString().c_str(), i->toString().length());
 		if(prefix != Qnil && INT2FIX(0) != rb_funcall(key, rb_intern("index"), 1, prefix)) {
 			continue;
 		}
@@ -82,7 +81,7 @@ static VALUE exiv2_iptc_each(int argc, VALUE *argv, VALUE self) {
 	__END
 }
 
-#if 0
+#if 1
 /*
  * Delete iptc value by it's name
  */
@@ -165,7 +164,7 @@ void Init_iptc() {
 	cIptc = rb_define_class_under(mExiv2, "Iptc", rb_cObject);
 	rb_define_method(cIptc, "each", VALUEFUNC(exiv2_iptc_each), -1);
 	rb_define_method(cIptc, "[]", VALUEFUNC(exiv2_iptc_get), 1);
-#if 0
+#if 1
 	rb_define_method(cIptc, "[]=", VALUEFUNC(exiv2_iptc_set), 2);
 	rb_define_method(cIptc, "delete", VALUEFUNC(exiv2_iptc_delete), 1);
 #endif
