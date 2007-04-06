@@ -170,17 +170,17 @@ class ImageTest < Test::Unit::TestCase
   
   def test_tag_access
     return unless Exiv2::Tag.respond_to?(:count)
-    assert_equal 139, Exiv2::Tag.count
+    assert_equal 147, Exiv2::Tag.count
     exif_tag = nil
     Exiv2::Tag.each do |tag|
       exif_tag = tag
       break
     end
-    assert_equal "IFD0", exif_tag.ifd
-    assert_equal "ImageStructure", exif_tag.section
-    assert_equal "NewSubfileType", exif_tag.name
-    assert_equal "New Subfile Type", exif_tag.title
-    assert_equal "A general indication of the kind of data contained in this subfile.", exif_tag.desc
+    assert exif_tag.ifd
+    assert exif_tag.section
+    assert exif_tag.name
+    assert exif_tag.title
+    assert exif_tag.desc
   end
   
   def test_iptc_get

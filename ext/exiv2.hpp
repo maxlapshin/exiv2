@@ -79,7 +79,7 @@
 #define RUN(x) if(!x) { return Qnil; }
 
 #define __BEGIN try {
-#define __END } catch(Exiv2::AnyError& e) { rb_raise(eError, "Error occured in exiv2 library: %s", e.what().c_str());}
+#define __END } catch(Exiv2::AnyError& e) { rb_raise(eError, "Error occured in exiv2 library: %s", e.what());}
 #define __NIL_END } catch(Exiv2::AnyError& e) { return Qnil; }
 #define __VOID_END } catch(Exiv2::AnyError& e) {}
 
