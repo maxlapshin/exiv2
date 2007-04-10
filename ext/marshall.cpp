@@ -91,9 +91,15 @@ VALUE unmarshall_value(const Exiv2::Value& value) {
 			}
 			return INT2NUM(r.first/r.second);
 		}
+		case Exiv2::date:
+		{
+			Exiv2::DateValue *date_value = dynamic_cast<Exiv2::DateValue *>(const_cast<Exiv2::Value *>(&value));
+			if(!date_value) return Qnil;
+			Exiv2::DateValue::Date date = date_value->getDate();
+			return rb_funcall(rb_cTime, rb_intern("utc"), 3, INT2FIX(date.year), INT2FIX(date.month), INT2FIX(date.day));
+		}
 		
 		case Exiv2::invalid6:
-		case Exiv2::date:
 		case Exiv2::time:
 		case Exiv2::comment:
 		case Exiv2::directory:
