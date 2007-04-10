@@ -52,8 +52,16 @@ static bool marshall_value(Exiv2::IptcData &data, const char* key, VALUE value) 
 			return true;
 		}
 		
-		case Exiv2::invalid6:
 		case Exiv2::date:
+		{
+			int year = NUM2INT(rb_funcall(value, rb_intern("year"), 0));
+			int month = NUM2INT(rb_funcall(value, rb_intern("month"), 0));
+			int day = NUM2INT(rb_funcall(value, rb_intern("day"), 0));
+			data[key] = Exiv2::DateValue(year, month, day);
+			return true;
+		}
+		
+		case Exiv2::invalid6:
 		case Exiv2::time:
 		case Exiv2::comment:
 		case Exiv2::directory:

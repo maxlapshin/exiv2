@@ -200,6 +200,11 @@ class ImageTest < Test::Unit::TestCase
       assert_equal "Moscow", @img["Iptc.Application2.City"]
       
       assert_equal Time.utc(2004, 7, 13), @img["Iptc.Application2.DateCreated"]
+      assert_equal Time.utc(2006, 3, 5), @img["Iptc.Application2.DateCreated"] = Time.utc(2006, 3, 5)
+      assert @img.save
+      
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal Time.utc(2006, 3, 5), @img["Iptc.Application2.DateCreated"]
     end
   end
 end
