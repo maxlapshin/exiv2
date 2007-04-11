@@ -17,5 +17,12 @@ module Exiv2
       return iptc[key] = value if key[0...4] == "Iptc"
       raise Exiv2::Error, "Unknown key for writing: #{key.inspect}"
     end
+    
+    def created_at
+      date = iptc["Iptc.Application2.DateCreated"]
+      time = iptc["Iptc.Application2.TimeCreated"]
+      return date unless time
+      Time.utc(date.year, date.month, date.day, time.hour, time.min, time.sec)
+    end
   end
 end

@@ -205,6 +205,13 @@ class ImageTest < Test::Unit::TestCase
       
       assert @img = Exiv2::Image.new(filename)
       assert_equal Time.utc(2006, 3, 5), @img["Iptc.Application2.DateCreated"]
+      assert_equal nil, @img["Iptc.Application2.TimeCreated"]
+      assert @img["Iptc.Application2.TimeCreated"] = Time.utc(1970, 1, 1, 15, 43, 23)
+      assert @img.save
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal Time.utc(1970, 1, 1, 15, 43, 23), @img["Iptc.Application2.TimeCreated"]
+      
+      assert_equal Time.utc(2006, 3, 5, 15, 43, 23), @img.created_at
     end
   end
 end

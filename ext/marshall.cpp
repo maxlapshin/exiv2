@@ -98,9 +98,14 @@ VALUE unmarshall_value(const Exiv2::Value& value) {
 			Exiv2::DateValue::Date date = date_value->getDate();
 			return rb_funcall(rb_cTime, rb_intern("utc"), 3, INT2FIX(date.year), INT2FIX(date.month), INT2FIX(date.day));
 		}
+		case Exiv2::time: {
+			Exiv2::TimeValue *time_value = dynamic_cast<Exiv2::TimeValue *>(const_cast<Exiv2::Value *>(&value));
+			if(!time_value) return Qnil;
+			Exiv2::TimeValue::Time time = time_value->getTime();
+			return rb_funcall(rb_cTime, rb_intern("utc"), 6, INT2FIX(1970), INT2FIX(1), INT2FIX(1), INT2FIX(time.hour), INT2FIX(time.minute), INT2FIX(time.second));
+		}
 		
 		case Exiv2::invalid6:
-		case Exiv2::time:
 		case Exiv2::comment:
 		case Exiv2::directory:
 		case Exiv2::lastTypeId:

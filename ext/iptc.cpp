@@ -60,9 +60,15 @@ static bool marshall_value(Exiv2::IptcData &data, const char* key, VALUE value) 
 			data[key] = Exiv2::DateValue(year, month, day);
 			return true;
 		}
+		case Exiv2::time: {
+			int hour = NUM2INT(rb_funcall(value, rb_intern("hour"), 0));
+			int minute = NUM2INT(rb_funcall(value, rb_intern("min"), 0));
+			int second = NUM2INT(rb_funcall(value, rb_intern("sec"), 0));
+			data[key] = Exiv2::TimeValue(hour, minute, second);
+			return true;
+		}
 		
 		case Exiv2::invalid6:
-		case Exiv2::time:
 		case Exiv2::comment:
 		case Exiv2::directory:
 		case Exiv2::lastTypeId:
