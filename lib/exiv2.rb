@@ -5,19 +5,23 @@ rescue LoadError
 end
 
 module Exiv2
+  #
   class Image
     
+    # method [] is used to read exif or iptc data
     def [](key)
       return exif[key] if key[0...4] == "Exif"
       return iptc[key] if key[0...4] == "Iptc"
     end
     
+    # method []= is used to set exif or iptc data
     def []=(key, value)
       return exif[key] = value if key[0...4] == "Exif"
       return iptc[key] = value if key[0...4] == "Iptc"
       raise Exiv2::Error, "Unknown key for writing: #{key.inspect}"
     end
     
+    # clues together Iptc.Application2.DateCreated and Iptc.Application2.TimeCreated if possible
     def created_at
       date = iptc["Iptc.Application2.DateCreated"]
       time = iptc["Iptc.Application2.TimeCreated"]

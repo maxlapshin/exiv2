@@ -63,9 +63,10 @@ task :stats  do
   ).to_s
 end
 
+`rm -f ruby-exiv2.cpp`
 desc "Generate file with C++ with all methods for proper rdoc"
 file "ruby-exiv2.cpp" do
-  `cat lib/*.cpp > ruby-exiv2.cpp`
+  `cat ext/*.cpp > ruby-exiv2.cpp`
 end
 
 
@@ -90,6 +91,7 @@ desc "Remove packaging products (doc and pkg) - they are not source-managed"
 task :clobber do
 	`rm -rf ./doc`
 	`rm -rf ./pkg`
+	`rm -f ruby-exiv2`
 end
 
 desc "Publish the new docs"

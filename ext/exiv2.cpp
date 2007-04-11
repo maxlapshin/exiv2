@@ -49,7 +49,16 @@ void rb_exiv2_throw(const char *file, long unsigned int line, const char *fmt, .
 extern "C"
 #endif
 
+/*
+ * Document-module: Exiv2
+ *
+ * Namespace for all exiv stuff
+ */
 
+/*
+ * Document-class: Exiv2::Error
+ * error, thrown if anything goes wrong inside in exiv2
+ */
 
 void Init_exiv2_bin() {
 	mExiv2 = rb_define_module("Exiv2");

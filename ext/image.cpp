@@ -13,6 +13,14 @@ static void image_leave(rbImage* image) {
 	
 }
 
+/*
+ * Document-class: Exiv2::Image
+ * Image is used to access to all exif data of image
+ *
+ *   @image = Exiv2::Image.new("my.jpg")
+ *   puts @image["Iptc.Application2.DateCreated"]
+ *   puts @image["Exif.Image.Software"]
+ */
 static VALUE exiv2_image_s_allocate(VALUE klass) {
 	__BEGIN
 	rbImage* image = new rbImage();
@@ -22,8 +30,7 @@ static VALUE exiv2_image_s_allocate(VALUE klass) {
 }
 
 /*
- * img = Exiv2::Image.new("IMGP3025.jpg")
- * => #<Exiv2::Image:0x844bc>
+ *   img = Exiv2::Image.new("IMGP3025.jpg")
  */
 static VALUE exiv2_image_initialize(VALUE self, VALUE file) {
 	__BEGIN
@@ -51,8 +58,9 @@ static VALUE exiv2_image_initialize(VALUE self, VALUE file) {
 /*
  *
  * Load Exiv2::Image from memory string
- * content = File.open("a.jpg").read
- * img = Exiv2::Image.load_string(content)
+ *
+ *   content = File.open("a.jpg").read
+ *   img = Exiv2::Image.load_string(content)
  */
 static VALUE exiv2_image_load_string(VALUE self, VALUE string) {
 	__BEGIN

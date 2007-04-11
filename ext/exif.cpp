@@ -254,6 +254,9 @@ static int iterate_tag_collection(const Exiv2::TagInfo* collection, bool to_yiel
 	return i;
 }
 
+/*
+ * Iterates through all available exif tags, that can be set in the image
+ */
 static VALUE exiv2_tags_each(VALUE self) {
 	__BEGIN
 	iterate_tag_collection(Exiv2::ExifTags::ifdTagList());
@@ -265,7 +268,9 @@ static VALUE exiv2_tags_each(VALUE self) {
 }
 
 
-
+/*
+ * Count of all available exif tags
+ */
 static VALUE exiv2_tags_count(VALUE self) {
 	__BEGIN
 	return INT2NUM(
@@ -278,6 +283,9 @@ static VALUE exiv2_tags_count(VALUE self) {
 }
 #endif /* HAVE_IFDTAGLIST */
 
+/*
+ * Name of exif tag
+ */
 static VALUE exiv2_tag_name(VALUE self) {
 	__BEGIN
 	Exiv2::TagInfo* tag;
@@ -287,6 +295,9 @@ static VALUE exiv2_tag_name(VALUE self) {
 	__END
 }
 
+/*
+ * title of exif tag
+ */
 static VALUE exiv2_tag_title(VALUE self) {
 	__BEGIN
 	Exiv2::TagInfo* tag;
@@ -296,6 +307,9 @@ static VALUE exiv2_tag_title(VALUE self) {
 	__END
 }
 
+/*
+ * description of exif tag
+ */
 static VALUE exiv2_tag_desc(VALUE self) {
 	__BEGIN
 	Exiv2::TagInfo* tag;
@@ -305,6 +319,9 @@ static VALUE exiv2_tag_desc(VALUE self) {
 	__END
 }
 
+/*
+ * section of exif tag
+ */
 static VALUE exiv2_tag_section(VALUE self) {
 	__BEGIN
 	Exiv2::TagInfo* tag;
@@ -314,6 +331,9 @@ static VALUE exiv2_tag_section(VALUE self) {
 	__END
 }
 
+/*
+ * IFD of exif tag
+ */
 static VALUE exiv2_tag_ifd(VALUE self) {
 	__BEGIN
 	Exiv2::TagInfo* tag;

@@ -2,15 +2,15 @@ Library for handling exif image tags.
 
 Basic usage:
 
-> gem install ruby-exiv2
-> irb -r rubygems
-irb(main):001:0> require 'exiv2'
-=> true
-irb(main):002:0> @img = Exiv2::Image.new("a.jpg")
-=> #<Exiv2::Image:0x4c524c>
-irb(main):003:0> @exif = @img.exif
-=> #<Exiv2::Exif:0x4bc160>
-irb(main):004:0> @img.exif["Exif.Photo.PixelXDimension"]
-=> 1024
+	> gem install ruby-exiv2
+	> irb -r rubygems
+	
+	require 'exiv2'
+	@img = Exiv2::Image.new("a.jpg")
+	puts @img["Exif.Photo.PixelXDimension"]
+	@img["Exif.Photo.PixelXDimension"] = 2048
+	@img.save
+	
+	
 
 
