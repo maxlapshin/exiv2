@@ -214,4 +214,22 @@ class ImageTest < Test::Unit::TestCase
       assert_equal Time.utc(2006, 3, 5, 15, 43, 23), @img.created_at
     end
   end
+  
+  def test_time_marshall
+    open_test_file "RIA3001.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      assert_equal Time.utc(1970, 1, 1, 12, 10, 00), @img["Iptc.Application2.TimeCreated"]
+    end
+  end
+  
+  def test_dynamic_accessors
+    open_test_file "smiley1.jpg" do |filename|
+      assert @img = Exiv2::Image.new(filename)
+      assert @img.Exif
+      assert_equal ["Flash", "PixelXDimension", "PixelYDimension"], @img.Exif.Photo.methods
+      assert_equal 140, @img.Exif.Photo.PixelYDimension
+      assert @img.Exif.Photo.PixelXDimension = 160
+      assert_equal 160, @img.Exif.Photo.PixelXDimension
+    end
+  end
 end

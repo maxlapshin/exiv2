@@ -217,6 +217,7 @@ void Init_image() {
 	rb_define_singleton_method(cImage, "load_string", VALUEFUNC(exiv2_image_load_string), 1);
 	
 	rb_define_method(cImage, "exif", VALUEFUNC(exiv2_image_exif), 0);
+	rb_define_method(cImage, "Exif", VALUEFUNC(exiv2_image_exif), 0);
 	rb_define_method(cImage, "iptc", VALUEFUNC(exiv2_image_iptc), 0);
 
 	rb_define_method(cImage, "thumbnail", VALUEFUNC(exiv2_image_thumbnail), 1);

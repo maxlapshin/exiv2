@@ -102,7 +102,7 @@ VALUE unmarshall_value(const Exiv2::Value& value) {
 			Exiv2::TimeValue *time_value = dynamic_cast<Exiv2::TimeValue *>(const_cast<Exiv2::Value *>(&value));
 			if(!time_value) return Qnil;
 			Exiv2::TimeValue::Time time = time_value->getTime();
-			return rb_funcall(rb_cTime, rb_intern("utc"), 6, INT2FIX(1970), INT2FIX(1), INT2FIX(1), INT2FIX(time.hour), INT2FIX(time.minute), INT2FIX(time.second));
+			return rb_funcall(rb_cTime, rb_intern("utc"), 6, INT2FIX(1970), INT2FIX(1), INT2FIX(1), INT2FIX(time.hour+time.tzHour), INT2FIX(time.minute+time.tzMinute), INT2FIX(time.second));
 		}
 		
 		case Exiv2::invalid6:
