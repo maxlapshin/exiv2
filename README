@@ -10,7 +10,12 @@ Basic usage:
 	puts @img["Exif.Photo.PixelXDimension"]
 	@img["Exif.Photo.PixelXDimension"] = 2048
 	@img.save
-	
-	
 
+Version 1.3 introduces dynamic accessors:
 
+    require 'exiv2'
+    @img = Exiv2::Image.new("a.jpg")
+    puts @img.Exif.Photo.PixelXDimension
+	@img.Exif.Photo.PixelXDimension = 2048
+	@img.save
+    
