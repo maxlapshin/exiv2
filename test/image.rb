@@ -232,4 +232,16 @@ class ImageTest < Test::Unit::TestCase
       assert_equal 160, @img.Exif.Photo.PixelXDimension
     end
   end
+  
+  def test_string_io
+    open_test_file "smiley1.jpg" do |filename|
+      File.open(filename, "r") {|f| @content = StringIO.new(f.read, "r+") }
+      assert @img = Exiv2::Image.new(@content)
+      assert @img.Exif
+      assert_equal ["Flash", "PixelXDimension", "PixelYDimension"], @img.Exif.Photo.methods
+      assert_equal 140, @img.Exif.Photo.PixelYDimension
+      assert @img.Exif.Photo.PixelXDimension = 160
+      assert_equal 160, @img.Exif.Photo.PixelXDimension
+    end
+  end
 end

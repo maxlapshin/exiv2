@@ -39,7 +39,11 @@ static VALUE exiv2_image_initialize(VALUE self, VALUE file) {
 	
 	
 	try {
-		if(rb_respond_to(file, rb_intern("read"))) {
+		if(!strcmp(rb_class2name(rb_class_of(file)), "StringIO")) {
+			rb_iv_set(self, "@content", file);
+			VALUE string = rb_funcall(file, rb_intern("string"), 0);
+			image->image = Exiv2::ImageFactory::open(CBSTR(string), LEN(string));
+		} else if(rb_respond_to(file, rb_intern("read"))) {
 			VALUE file_content = rb_funcall(file, rb_intern("read"), 0);
 			rb_iv_set(self, "@file_content", file_content);
 			image->image = Exiv2::ImageFactory::open(CBSTR(file_content), LEN(file_content));
