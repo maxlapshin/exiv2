@@ -2,6 +2,7 @@ Library for handling exif image tags.
 
 Basic usage:
 
+  > gem install RubyInline
 	> gem install ruby-exiv2
 	> irb -r rubygems
 	
