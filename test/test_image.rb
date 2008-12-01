@@ -126,7 +126,7 @@ class ImageTest < Test::Unit::TestCase
         assert key
         assert value
       end
-      assert_equal 74, i
+      assert_equal 77, i
 
       i = 0
       @img.exif.each "Exif.Fujifilm" do |key, value|
@@ -170,7 +170,7 @@ class ImageTest < Test::Unit::TestCase
   
   def test_tag_access
     return unless Exiv2::Tag.respond_to?(:count)
-    assert_equal 147, Exiv2::Tag.count
+    assert_equal 201, Exiv2::Tag.count
     exif_tag = nil
     Exiv2::Tag.each do |tag|
       exif_tag = tag

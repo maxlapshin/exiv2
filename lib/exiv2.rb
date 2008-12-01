@@ -2,6 +2,7 @@ require 'enumerator'
 require 'rubygems'
 require 'inline'
 require 'active_support'
+require 'erb'
 
 module Exiv2
   def self.prepare_builder(builder)
@@ -13,10 +14,15 @@ module Exiv2
     builder.include_ruby_last
   end
   
+  def self.load(&block)
+    ERB.new(File.read(File.dirname(__FILE__)+"/exiv2/" + block.call)).result(block.binding)
+  end
 end
 
 require 'exiv2/image'
 require 'exiv2/exif'
+require 'exiv2/iptc'
+require 'exiv2/tag'
 
 module Exiv2
   class Error < StandardError; end

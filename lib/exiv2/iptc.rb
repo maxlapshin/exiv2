@@ -1,7 +1,7 @@
 module Exiv2
-  class Exif
+  class Iptc
     inline do |builder|
-      kind = "Exif"
+      kind = "Iptc"
       Exiv2::prepare_builder(builder)
       builder.prefix(Exiv2::load {"metadata/marshall.cpp"})
       builder.prefix(Exiv2::load {"metadata/unmarshall.cpp"})

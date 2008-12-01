@@ -116,15 +116,87 @@ module Exiv2
       }
       EOF
       
-      builder.c <<-EOF, :method_name => "exif"
-      static VALUE exiv2_image_exif() {
+      %w(exif iptc).each do |kind|
+        builder.add_to_init "rb_define_method(c, \"#{kind.classify}\", (VALUE(*)(ANYARGS))exiv2_image_#{kind}, 0);"
+        builder.c <<-EOF, :method_name => kind
+        static VALUE exiv2_image_#{kind}() {
+        	__BEGIN
+        	rbImage* image;
+        	VALUE klass = rb_path2class("Exiv2::#{kind.classify}");
+        	Data_Get_Struct(self, rbImage, image);
+        	VALUE reader = Data_Wrap_Struct(klass, 0, image_leave, image);
+        	rb_iv_set(reader, "@image", self);
+        	return reader;
+        	__END
+        }
+        EOF
+      end
+      
+      builder.c <<-EOF, :method_name => "comment"
+      static VALUE exiv2_image_get_comment() {
       	__BEGIN
       	rbImage* image;
-      	VALUE cExif = rb_path2class("Exiv2::Exif");
       	Data_Get_Struct(self, rbImage, image);
-      	VALUE exif = Data_Wrap_Struct(cExif, 0, image_leave, image);
-      	rb_iv_set(exif, "@image", self);
-      	return exif;
+      	std::string comment = image->image->comment();
+      	return rb_str_new(comment.c_str(), comment.length());
+      	__END
+      }
+      EOF
+      
+      builder.c <<-EOF, :method_name => "comment="
+      static VALUE exiv2_image_set_comment(VALUE comment) {
+      	__BEGIN
+      	rbImage* image;
+      	Data_Get_Struct(self, rbImage, image);
+      	switch(TYPE(comment)) {
+      		case T_STRING: {
+      			image->image->setComment(CSTR(comment));
+      			image->dirty = true;
+      			break;
+      		}
+      		case T_NIL: {
+      			image->image->clearComment();
+      			image->dirty = true;
+      			break;
+      		}
+      		default: {
+      			rb_raise(rb_eStandardError, "Can only set comment to string, or clear it with nil value");
+      		}
+      	}
+      	return comment;
+      	__END
+      }
+      EOF
+      
+      builder.c <<-EOF, :method_name => "thumbnail"
+      static VALUE exiv2_image_thumbnail(VALUE file_name) {
+      	__BEGIN
+      	Check_Type(file_name, T_STRING);
+
+      	rbImage* image;
+      	Data_Get_Struct(self, rbImage, image);
+
+      	Exiv2::ExifData &exifData = image->image->exifData();
+//      	exifData.writeThumbnail(STR(file_name));
+      	if(rb_block_given_p()) {
+      		rb_yield(file_name);
+      	}
+      	return self;
+      	__END
+      }
+      EOF
+      
+      builder.c <<-EOF, :method_name => "thumbnail="
+      static VALUE exiv2_image_thumbnail_set(VALUE file_name) {
+      	__BEGIN
+      	Check_Type(file_name, T_STRING);
+
+      	rbImage* image;
+      	Data_Get_Struct(self, rbImage, image);
+
+      	Exiv2::ExifData &exifData = image->image->exifData();
+//      	exifData.setJpegThumbnail(STR(file_name));
+      	return self;
       	__END
       }
       EOF

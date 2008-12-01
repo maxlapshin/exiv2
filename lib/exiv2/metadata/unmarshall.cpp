@@ -105,7 +105,6 @@ VALUE unmarshall_value(const Exiv2::Value& value) {
 			return rb_funcall(rb_cTime, rb_intern("utc"), 6, INT2FIX(1970), INT2FIX(1), INT2FIX(1), INT2FIX(time.hour+time.tzHour), INT2FIX(time.minute+time.tzMinute), INT2FIX(time.second));
 		}
 		
-		case Exiv2::invalid6:
 		case Exiv2::comment:
 		case Exiv2::directory:
 		case Exiv2::lastTypeId:
