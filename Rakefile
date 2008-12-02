@@ -23,13 +23,12 @@ spec = Gem::Specification.new do |s|
   s.summary = PKG_SUMMARY
   s.require_path = "lib"
   s.rubyforge_project = PKG_NAME
-  s.files = %w(README Rakefile setup.rb init.rb) +
+  s.files = %w(README Rakefile init.rb) +
     Dir.glob("{test}/**/*") + 
     Dir.glob("lib/**/*.{rb,cpp,hpp}")
   s.test_files = FileList["{test}/**/*.rb"].to_a
   s.has_rdoc = true
   s.extra_rdoc_files = ["README"]
-  s.rdoc_options = PKG_RDOC_OPTS
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
@@ -69,7 +68,6 @@ Rake::RDocTask.new("doc") do |rdoc|
   rdoc.rdoc_files.include('README')
 #  rdoc.rdoc_files.include('CHANGELOG')
 #  rdoc.rdoc_files.include('TODO')
-  rdoc.options = PKG_RDOC_OPTS
   rdoc.rdoc_files.include "ruby-exiv2.cpp"
 end
 
