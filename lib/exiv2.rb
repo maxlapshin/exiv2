@@ -10,7 +10,7 @@ module Exiv2
     Config::CONFIG["CC"] = "g++  "
     Config::CONFIG["LDSHARED"].gsub!(/^cc /,"g++ ")
     builder.include "<exiv2.hpp>"
-    builder.add_compile_flags "-x c++ -I#{File.dirname(__FILE__)} -I/usr/local/include/exiv2", '-lstdc++ -lexiv2'
+    builder.add_compile_flags "-x c++ -I#{File.dirname(__FILE__)} -I/usr/local/include/exiv2 -I/usr/include/exiv2", '-lstdc++ -lexiv2'
     builder.include_ruby_last
   end
   
