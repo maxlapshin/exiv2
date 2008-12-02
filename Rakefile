@@ -11,11 +11,6 @@ PKG_AUTHOR = "Max Lapshin"
 PKG_EMAIL = "max@maxidoors.ru"
 PKG_HOMEPAGE = "http://github.com/maxlapshin/exiv2"
 PKG_SUMMARY = "Exiv2 (exif image tags handling) library driver"
-PKG_GIT = "git://github.com/maxlapshin/exiv2.git"
-PKG_RDOC_OPTS = ['--main=README',
-                 '--line-numbers',
-                 '--charset=utf-8',
-                 '--promiscuous']
 
 
 spec = Gem::Specification.new do |s|
@@ -38,7 +33,7 @@ spec = Gem::Specification.new do |s|
 end
 
 Rake::GemPackageTask.new(spec) do |pkg|
-  pkg.need_tar = true
+  pkg.need_tar = false
 end
 
 task :default => [ :test ]
